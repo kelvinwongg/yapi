@@ -1,7 +1,7 @@
 # YAPI
 A single declarative yaml document crud api cms framwork, or whatever
 
-# Project
+# Preface
 You want to quickly setup a API endpoint for some data. There are many ways and frameworks that does that. But the problem is, as a professional developer, you want to work straight into the business, not spending your life for a repetitive story from every frameworks that come across:
 
 You've spending weeks or months on learning a new framwork, reading its documentations, testing and playing along. Then, for the deliverable, you write a RESTful endpoint that simply do CRUD operations from a database.
