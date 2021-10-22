@@ -1,0 +1,18 @@
+{
+    "name": "kelvinwongg/yapi",
+    "description": "A single declarative yaml document crud api cms framwork, or whatever",
+    "type": "framework",
+    "license": "GPLv3",
+    "autoload": {
+        "psr-4": {
+            "Kelvinwongg\\Yapi\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Kelvin Wong",
+            "email": "kelvinwongg@yahoo.com.hk"
+        }
+    ],
+    "require": {}
+}
