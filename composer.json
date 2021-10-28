@@ -1,20 +1,23 @@
 {
-    "name": "kelvinwongg/yapi",
-    "description": "A single declarative yaml document crud api cms framwork, or whatever",
-    "type": "framework",
-    "license": "GPL-3.0-only",
-    "autoload": {
-        "psr-4": {
-            "Kelvinwongg\\Yapi\\": "src/"
-        }
-    },
-    "authors": [
-        {
-            "name": "Kelvin Wong",
-            "email": "kelvinwongg@yahoo.com.hk"
-        }
-    ],
-    "require-dev": {
-        "phpunit/phpunit": "^9"
-    }
+	"name": "kelvinwongg/yapi",
+	"description": "A single declarative yaml document crud api cms framwork, or whatever",
+	"type": "framework",
+	"license": "GPL-3.0-only",
+	"autoload": {
+		"psr-4": {
+			"Kelvinwongg\\Yapi\\": "src/"
+		},
+		"files": [
+			"src/Util/Helper.php"
+		]
+	},
+	"authors": [
+		{
+			"name": "Kelvin Wong",
+			"email": "kelvinwongg@yahoo.com.hk"
+		}
+	],
+	"require-dev": {
+		"phpunit/phpunit": "^9"
+	}
 }
