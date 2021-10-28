@@ -2,9 +2,9 @@
 
 namespace Kelvinwongg\Yapi\Util;
 
-function xd($var)
-{
-	if ($var) {
+if (!function_exists(__NAMESPACE__ . '\xd')) {
+	function xd($var)
+	{
 		echo '<pre>';
 		var_dump($var);
 		echo '</pre>';
