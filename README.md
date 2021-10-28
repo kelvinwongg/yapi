@@ -11,3 +11,7 @@ In fact this is my career that most of the time I spent a lot of time (or months
 Recently I went to a new job, and going the same process again. This time I have to tackle the poorly documented Drupal, and tried to use it as a CMS and a application framework for some custom JSON api. THe feeling of life-wasting came again, makes me want to quit. Then a thought blinks into my mind: Why cannot I write a YAML file that define a JSON api with simple CRUD operation, just like what I did with Docker and Kubernetes?
 
 The YAPI project is just does that!
+
+# How it works
+
+(How YAPI works)
