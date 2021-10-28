@@ -2,7 +2,7 @@
     "name": "kelvinwongg/yapi",
     "description": "A single declarative yaml document crud api cms framwork, or whatever",
     "type": "framework",
-    "license": "GPLv3",
+    "license": "GPL-3.0-only",
     "autoload": {
         "psr-4": {
             "Kelvinwongg\\Yapi\\": "src/"
