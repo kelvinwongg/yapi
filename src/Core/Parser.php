@@ -3,12 +3,13 @@
 namespace Kelvinwongg\Yapi\Core;
 
 use function Kelvinwongg\Yapi\Util\{xd};
+use Kelvinwongg\Yapi\Core\File;
 
 class Parser
 {
-	public function __construct()
+	public function __construct($path = NULL)
 	{
-		echo 'Parser construct';
-		xd('asdf');
+		$endpointPath = File::findEndpointDirectory($path);
+		xd($endpointPath);
 	}
 }
