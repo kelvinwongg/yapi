@@ -1,0 +1,9 @@
+---
+version: yapi/v1
+kind: Application
+settings:
+  database:
+    - host: localhost
+      user: root
+      password: asdf1234
+      database: yapi_data
