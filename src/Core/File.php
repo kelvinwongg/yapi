@@ -15,15 +15,16 @@ class File
 		/**
 		 * Find YAML directory
 		 */
-		if ($path) {
-			// Find by user provide $path
-			if (file_exists($path) && is_dir($path)) {
-				return $path;
-			}
-		} else {
+
+		if (!$path) {
 			// Find by default location ./endpoints
-			$path = end(debug_backtrace())['file'];
-			xd(pathinfo($path));
+			$path = pathinfo(end(debug_backtrace())['file'])['dirname'] . '/endpoints';
 		}
+
+		// Find by user provide $path
+		if (file_exists($path) && is_dir($path)) {
+			return $path;
+		}
+		return NULL;
 	}
 }

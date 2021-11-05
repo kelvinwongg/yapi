@@ -9,7 +9,7 @@ class Parser
 {
 	public function __construct($path = NULL)
 	{
-		$endpointPath = File::findEndpointDirectory($path);
-		xd($endpointPath);
+		// $endpointPath = File::findEndpointDirectory($path);
+		$endpointPath = File::findEndpointDirectory();
 	}
 }
