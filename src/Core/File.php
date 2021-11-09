@@ -6,25 +6,17 @@ use function Kelvinwongg\Yapi\Util\{xd};
 
 class File
 {
-	public function __construct($dir = NULL)
+	public $filepath;
+
+	public function __construct(string $filepath)
 	{
+		$this->filepath = $filepath;
 	}
 
-	public static function findYAMLDir($dir = NULL): ?string
+	private static function getYamlDir($dir = NULL): ?string
 	{
-		/**
-		 * Find YAML directory
-		 */
-
-		// check if user provide a directory path
-		// if not exists or not a directory,
-		// fallback to the default ./endpoints directory
-
-		if (file_exists($dir) && is_dir($dir)) {
-			// Find by user provide $dir
-			$dir;
-		} else {
-			// Default location ./endpoints
+		if (!file_exists($dir) || !is_dir($dir)) {
+			// Fallback to default location ./endpoints
 			$dir = pathinfo(end(debug_backtrace())['file'])['dirname'] . '/endpoints';
 		}
 
@@ -32,8 +24,13 @@ class File
 		return rtrim($dir, '/') . '/';
 	}
 
-	public static function findYAMLFile($dir = NULL): ?array
+	public static function getYamlFromDir($dir = NULL): ?array
 	{
-		return glob(self::findYAMLDir($dir) . '*\.y*ml');
+		return array_map(
+			function ($filepath) {
+				return new self($filepath);
+			},
+			glob(self::getYamlDir($dir) . '*\.y*ml')
+		);
 	}
 }
