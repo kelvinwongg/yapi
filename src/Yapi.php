@@ -30,8 +30,18 @@ class Yapi
 		 */
 	}
 
-	public function parse($file)
+	protected function parse(File $file)
 	{
-		xd(yaml_parse_file($file->filepath));
+		/**
+		 * 1. Parse and check YAML document
+		 */
+		// throw new \Exception("Error Processing Request", 1);
+		
+
+		/**
+		 * 2. Check the system with YAML document
+		 */
+		$parser = new Parser();
+		$parser->parseYaml($file);
 	}
 }

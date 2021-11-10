@@ -9,4 +9,8 @@ class Parser
 	public function __construct($filepath = NULL)
 	{
 	}
+
+	public function parseYaml(File $file) {
+		yaml_parse_file($file->filepath);
+	}
 }
