@@ -2,19 +2,26 @@
 
 namespace Kelvinwongg\Yapi;
 
-use Kelvinwongg\Yapi\Core\RequestInterface;
 use Kelvinwongg\Yapi\Core\ResponseInterface;
-use Kelvinwongg\Yapi\Core\ParserInterface;
-use Kelvinwongg\Yapi\Core\SystemCheckerInterface;
+use Kelvinwongg\Yapi\Core\File;
 
 interface YapiInterface
 {
-	public function init();
-	public function handleRequest(): RequestInterface;
-	public function parseYaml(ParserInterface $parser): bool;
-	// public function systemCheck(SystemCheckerInterface $checker): bool;
-	public function beforeHook(): ResponseInterface;
-	public function crudOperation(): ResponseInterface;
-	public function afterHook(): ResponseInterface;
-	public function handleResponse(): ResponseInterface;
+	/**
+	 * What does YAPI do?
+	 */	
+
+	/**
+	 * init, run at __construct, process the normal flow,
+	 * if user provide a yaml file
+	 *
+	 * @param  File $file
+	 * @return self
+	 */
+	public function init(File $file): self;
+
+	public function handleRequest(): ResponseInterface;
+	public function createDatabase(): bool;
+	public function checkDatabase(): bool;
+	public function checkYaml(): bool;
 }
