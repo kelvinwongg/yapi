@@ -13,5 +13,4 @@ Recently I went to a new job, and going the same process again. This time I have
 The YAPI project is just does that!
 
 # How it works
-
-(How YAPI works)
+YAPI is all about YAML files, You give it a YAML file, and YAPI do things for you. Like it construct a database and create a RESTful API endpoints doing normal CRUD operation to the database. You can also hook into the endpoints and doing just whatever you want and opt-in to response to clients with the tools provided YAPI.

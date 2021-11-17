@@ -9,7 +9,9 @@ interface YapiInterface
 {
 	/**
 	 * What does YAPI do?
-	 */	
+	 * YAPI is all about YAML files,
+	 * You give it a YAML file, and YAPI do things for you.
+	 */
 
 	/**
 	 * init, run at __construct, process the normal flow,
