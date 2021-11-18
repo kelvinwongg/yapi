@@ -2,19 +2,15 @@
 
 namespace Kelvinwongg\Yapi;
 
+use Kelvinwongg\Yapi\Core\RequestInterface;
 use Kelvinwongg\Yapi\Core\ResponseInterface;
 use Kelvinwongg\Yapi\Core\File;
 
 interface YapiInterface
 {
 	/**
-	 * What does YAPI do?
-	 * YAPI is all about YAML files,
-	 * You give it a YAML file, and YAPI do things for you.
-	 */
-
-	/**
-	 * init, run at __construct, process the normal flow,
+	 * init
+	 * run at __construct, process the normal flow,
 	 * if user provide a yaml file
 	 *
 	 * @param  File $file
@@ -22,7 +18,13 @@ interface YapiInterface
 	 */
 	public function init(File $file): self;
 
-	public function handleRequest(): ResponseInterface;
+	/**
+	 * handleRequest
+	 * 
+	 * @param  mixed $request
+	 * @return ResponseInterface
+	 */
+	public function handleRequest(RequestInterface $request): ResponseInterface;
 	public function createDatabase(): bool;
 	public function checkDatabase(): bool;
 	public function checkYaml(): bool;
