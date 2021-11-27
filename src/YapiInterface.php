@@ -6,11 +6,10 @@ use Kelvinwongg\Yapi\Core\DatabaseInterface;
 use Kelvinwongg\Yapi\Core\RequestInterface;
 use Kelvinwongg\Yapi\Core\ResponseInterface;
 use Kelvinwongg\Yapi\Core\FileInterface;
+use Kelvinwongg\Yapi\Core\ParserInterface;
 
 interface YapiInterface
 {
-	public function __construct();
-
 	/**
 	 * exec
 	 * 
@@ -36,7 +35,7 @@ interface YapiInterface
 	/**
 	 * createDatabase
 	 * 
-	 * Create the database schema based on the YAML document.
+	 * Create the database schema based on the YAML file.
 	 * Return DatabaseInterface on success, NULL on failure
 	 *
 	 * @param  FileInterface $file
@@ -47,22 +46,22 @@ interface YapiInterface
 	/**
 	 * checkDatabase
 	 * 
-	 * Check the database schema based on the YAML document.
+	 * Check the database schema based on the YAML file.
 	 * Without any actual change to the database (dry run).
 	 * Return boolean on success/failure.
 	 *
 	 * @return boolean
 	 */
-	public function checkDatabase(FileInterface $file): bool;
+	public static function checkDatabase(FileInterface $file): bool;
 
 	/**
 	 * checkYaml
 	 * 
-	 * Check the integrity of the YAML document.
+	 * Check the integrity of the YAML file.
 	 * Without any actual change to the database (dry run).
 	 * Return boolean on success/failure.
 	 *
 	 * @return boolean
 	 */
-	public function checkYaml(FileInterface $file): bool;
+	public static function checkYaml(FileInterface $file, ParserInterface $parser): bool;
 }

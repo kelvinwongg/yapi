@@ -30,7 +30,7 @@ class Yapi
 		 */
 	}
 
-	protected function parse(File $file)
+	protected function parse(File $file, Parser $parser = new Parser())
 	{
 		/**
 		 * 1. Parse and check YAML document
@@ -41,7 +41,7 @@ class Yapi
 		/**
 		 * 2. Check the system with YAML document
 		 */
-		$parser = new Parser();
+		$parser = new Parser($file);
 		$parser->parseYaml($file);
 	}
 }

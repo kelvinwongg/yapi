@@ -2,6 +2,6 @@
 
 namespace Kelvinwongg\Yapi\Core;
 
-interface ParserInterface
+interface RequestInterface
 {
 }
