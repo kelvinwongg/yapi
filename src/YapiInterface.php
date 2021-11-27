@@ -2,22 +2,25 @@
 
 namespace Kelvinwongg\Yapi;
 
+use Kelvinwongg\Yapi\Core\DatabaseInterface;
 use Kelvinwongg\Yapi\Core\RequestInterface;
 use Kelvinwongg\Yapi\Core\ResponseInterface;
-use Kelvinwongg\Yapi\Core\File;
+use Kelvinwongg\Yapi\Core\FileInterface;
 
 interface YapiInterface
 {
+	public function __construct();
+
 	/**
-	 * init
+	 * exec
 	 * 
 	 * Run at __construct function.
 	 * Process the YAPI normal flow if a YAML document presents.
 	 *
-	 * @param  File $file The YAML document.
-	 * @return self Return itself for manual flow.
+	 * @param  FileInterface $file The YAML document.
+	 * @return ResponseInterface Return a response of normal flow.
 	 */
-	public function init(File $file): self;
+	public function exec(FileInterface $file): ResponseInterface;
 
 	/**
 	 * handleRequest
@@ -25,20 +28,21 @@ interface YapiInterface
 	 * Handle inbound request.
 	 * Do the CRUD operation and/or before/after hooks if exists.
 	 * 
-	 * @param  mixed $request
+	 * @param  RequestInterface $request
 	 * @return ResponseInterface
 	 */
 	public function handleRequest(RequestInterface $request): ResponseInterface;
-	
+
 	/**
 	 * createDatabase
 	 * 
 	 * Create the database schema based on the YAML document.
-	 * Return boolean on success/failure.
+	 * Return DatabaseInterface on success, NULL on failure
 	 *
-	 * @return boolean
+	 * @param  FileInterface $file
+	 * @return DatabaseInterface
 	 */
-	public function createDatabase(): bool;
+	public function createDatabase(FileInterface $file): ?DatabaseInterface;
 
 	/**
 	 * checkDatabase
@@ -49,7 +53,7 @@ interface YapiInterface
 	 *
 	 * @return boolean
 	 */
-	public function checkDatabase(): bool;
+	public function checkDatabase(FileInterface $file): bool;
 
 	/**
 	 * checkYaml
@@ -60,5 +64,5 @@ interface YapiInterface
 	 *
 	 * @return boolean
 	 */
-	public function checkYaml(): bool;
+	public function checkYaml(FileInterface $file): bool;
 }
