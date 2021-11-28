@@ -59,8 +59,12 @@ class Yapi implements YapiInterface
 		return true;
 	}
 
-	public static function checkYaml(FileInterface $file, ParserInterface $parser = new Parser()): bool
+	public static function checkYaml(FileInterface $file, ParserInterface $parser): bool
 	{
+		if ($parser === NULL) {
+			$parser = new Parser();
+		}
+
 		/**
 		 * Parse and check YAML document
 		 */
