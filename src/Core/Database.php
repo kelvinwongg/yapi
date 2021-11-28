@@ -2,9 +2,11 @@
 
 namespace Kelvinwongg\Yapi\Core;
 
-class Database
+use Kelvinwongg\Yapi\Core\DatabaseInterface;
+
+class Database implements DatabaseInterface
 {
-	public function __construct(array $settings)
+	public function __construct(array $settings = [])
 	{
 		echo 'Database construct';
 	}

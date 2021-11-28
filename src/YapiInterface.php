@@ -14,9 +14,9 @@ interface YapiInterface
 	 * exec
 	 * 
 	 * Run at __construct function.
-	 * Process the YAPI normal flow if a YAML document presents.
+	 * Process the YAPI normal flow if a YAML file presents.
 	 *
-	 * @param  FileInterface $file The YAML document.
+	 * @param  FileInterface $file The YAML file.
 	 * @return ResponseInterface Return a response of normal flow.
 	 */
 	public function exec(FileInterface $file): ResponseInterface;

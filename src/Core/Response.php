@@ -2,7 +2,9 @@
 
 namespace Kelvinwongg\Yapi\Core;
 
-class Response
+use Kelvinwongg\Yapi\Core\ResponseInterface;
+
+class Response implements ResponseInterface
 {
 	public function __construct()
 	{

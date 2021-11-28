@@ -2,7 +2,9 @@
 
 namespace Kelvinwongg\Yapi\Core;
 
-class Request
+use Kelvinwongg\Yapi\Core\RequestInterface;
+
+class Request implements RequestInterface
 {
 	public function __construct()
 	{

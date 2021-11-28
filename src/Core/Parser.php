@@ -10,7 +10,7 @@ class Parser
 	{
 	}
 
-	public function parseYaml(File $file)
+	public function parseYaml(FileInterface $file)
 	{
 		yaml_parse_file($file->filepath);
 	}
