@@ -24,39 +24,28 @@ class Yapi implements YapiInterface
 		 */
 
 		/**
-		 * 2. Parse and check system with YAML document
+		 * 2. Check YAML file
 		 */
 		// foreach (File::getYamlFromDir($dir) as $file) {
 		// 	$this->parse($file);
 		// }
 
 		/**
-		 * 3. Before hook, CRUD operations, After hook
+		 * 3. Check database against YAML file
 		 */
 
 		/**
-		 * 4. Handle the response
+		 * 4. Before hook, CRUD operations, After hook
 		 */
-	}
 
-	public function exec(FileInterface $file): ResponseInterface
-	{
-		return new Response();
+		/**
+		 * 5. Handle the response
+		 */
 	}
 
 	public function handleRequest(RequestInterface $request): ResponseInterface
 	{
 		return new Response();
-	}
-
-	public function createDatabase(FileInterface $file): DatabaseInterface
-	{
-		return new Database();
-	}
-
-	public static function checkDatabase(FileInterface $file): bool
-	{
-		return true;
 	}
 
 	public static function checkYaml(FileInterface $file, ParserInterface $parser): bool
@@ -72,5 +61,25 @@ class Yapi implements YapiInterface
 		$parser->parseYaml($file);
 
 		return true;
+	}
+
+	public static function checkDatabase(FileInterface $file): bool
+	{
+		return true;
+	}
+
+	public function createDatabase(FileInterface $file): DatabaseInterface
+	{
+		return new Database();
+	}
+
+	public function execCrud(FileInterface $file): ResponseInterface
+	{
+		return new Response();
+	}
+
+	public function handleResponse(ResponseInterface $response): ResponseInterface
+	{
+		return $response;
 	}
 }

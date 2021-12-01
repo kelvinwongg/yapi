@@ -11,17 +11,6 @@ use Kelvinwongg\Yapi\Core\ParserInterface;
 interface YapiInterface
 {
 	/**
-	 * exec
-	 * 
-	 * Run at __construct function.
-	 * Process the YAPI normal flow if a YAML file presents.
-	 *
-	 * @param  FileInterface $file The YAML file.
-	 * @return ResponseInterface Return a response of normal flow.
-	 */
-	public function exec(FileInterface $file): ResponseInterface;
-
-	/**
 	 * handleRequest
 	 * 
 	 * Handle inbound request.
@@ -33,15 +22,15 @@ interface YapiInterface
 	public function handleRequest(RequestInterface $request): ResponseInterface;
 
 	/**
-	 * createDatabase
+	 * checkYaml
 	 * 
-	 * Create the database schema based on the YAML file.
-	 * Return DatabaseInterface on success, NULL on failure
+	 * Check the integrity of the YAML file.
+	 * Without any actual change to the database (dry run).
+	 * Return boolean on success/failure.
 	 *
-	 * @param  FileInterface $file
-	 * @return DatabaseInterface
+	 * @return boolean
 	 */
-	public function createDatabase(FileInterface $file): ?DatabaseInterface;
+	public static function checkYaml(FileInterface $file, ParserInterface $parser): bool;
 
 	/**
 	 * checkDatabase
@@ -55,13 +44,35 @@ interface YapiInterface
 	public static function checkDatabase(FileInterface $file): bool;
 
 	/**
-	 * checkYaml
+	 * createDatabase
 	 * 
-	 * Check the integrity of the YAML file.
-	 * Without any actual change to the database (dry run).
-	 * Return boolean on success/failure.
+	 * Create the database schema based on the YAML file.
+	 * Return DatabaseInterface on success, NULL on failure
 	 *
-	 * @return boolean
+	 * @param  FileInterface $file
+	 * @return DatabaseInterface
 	 */
-	public static function checkYaml(FileInterface $file, ParserInterface $parser): bool;
+	public function createDatabase(FileInterface $file): ?DatabaseInterface;
+
+	/**
+	 * execCrud
+	 * 
+	 * Run at __construct function.
+	 * Process the YAPI normal flow if a YAML file presents.
+	 *
+	 * @param  FileInterface $file The YAML file.
+	 * @return ResponseInterface Return a response of normal flow.
+	 */
+	public function execCrud(FileInterface $file): ResponseInterface;
+
+	/**
+	 * handleResponse
+	 * 
+	 * Handle http headers.
+	 * Sent the response in JSON or HTML.
+	 *
+	 * @param  ResponseInterface $response
+	 * @return ResponseInterface
+	 */
+	public function handleResponse(ResponseInterface $response): ResponseInterface;
 }
