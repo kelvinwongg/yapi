@@ -17,7 +17,7 @@ use Kelvinwongg\Yapi\Core\DatabaseInterface;
 
 class Yapi implements YapiInterface
 {
-	public function __construct($dir = NULL)
+	public function __construct(string $filepath = '')
 	{
 		/**
 		 * 1. Handle the request
@@ -26,12 +26,9 @@ class Yapi implements YapiInterface
 		/**
 		 * 2. Check YAML file
 		 */
-		// foreach (File::getYamlFromDir($dir) as $file) {
-		// 	$this->parse($file);
-		// }
 
 		/**
-		 * 3. Check database against YAML file
+		 * 3. Check and create database against YAML file
 		 */
 
 		/**
@@ -41,6 +38,11 @@ class Yapi implements YapiInterface
 		/**
 		 * 5. Handle the response
 		 */
+	}
+
+	public function exec(FileInterface $file): ResponseInterface
+	{
+		return new Response();
 	}
 
 	public function handleRequest(RequestInterface $request): ResponseInterface

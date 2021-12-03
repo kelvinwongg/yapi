@@ -11,10 +11,20 @@ use Kelvinwongg\Yapi\Core\ParserInterface;
 interface YapiInterface
 {
 	/**
+	 * exec
+	 * 
+	 * Run at __construct function.
+	 * Process the YAPI normal flow if a YAML file presents.
+	 *
+	 * @param FileInterface $file
+	 * @return ResponseInterface
+	 */
+	public function exec(FileInterface $file): ResponseInterface;
+
+	/**
 	 * handleRequest
 	 * 
 	 * Handle inbound request.
-	 * Do the CRUD operation and/or before/after hooks if exists.
 	 * 
 	 * @param  RequestInterface $request
 	 * @return ResponseInterface
@@ -57,8 +67,8 @@ interface YapiInterface
 	/**
 	 * execCrud
 	 * 
-	 * Run at __construct function.
-	 * Process the YAPI normal flow if a YAML file presents.
+	 * Do the CRUD operation
+	 * Do the before/after hooks if exists.
 	 *
 	 * @param  FileInterface $file The YAML file.
 	 * @return ResponseInterface Return a response of normal flow.
