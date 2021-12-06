@@ -2,35 +2,55 @@
 
 namespace Kelvinwongg\Yapi\Core;
 
-use function Kelvinwongg\Yapi\Util\{xd};
-
-class File
+class File implements FileInterface
 {
-	public $filepath;
+	private $filepath;
+	private $yamlArray;
+	private $yamlString;
 
-	public function __construct(string $filepath)
+	private function __construct(string $yamlString)
 	{
-		$this->filepath = $filepath;
+		$this->yamlString = $yamlString;
 	}
 
-	private static function getYamlDir($dir = NULL): ?string
+	public static function fromYamlString(string $yamlString): self
 	{
-		if (!file_exists($dir) || !is_dir($dir)) {
-			// Fallback to default location ./endpoints
-			$dir = pathinfo(end(debug_backtrace())['file'])['dirname'] . '/endpoints';
-		}
-
-		// Ensure trailling slash
-		return rtrim($dir, '/') . '/';
+		return new self($yamlString);
 	}
 
-	public static function getYamlFromDir($dir = NULL): ?array
+	public static function fromPath(string $filepath): self
 	{
-		return array_map(
-			function ($filepath) {
-				return new self($filepath);
-			},
-			glob(self::getYamlDir($dir) . '*\.y*ml')
-		);
+		$yamlString = file_get_contents($filepath);
+		$self = new self($yamlString);
+		$self->filepath = $filepath;
+		return $self;
+	}
+
+	public function setYamlArray(array $yamlArray): void
+	{
+		$this->yamlArray = $yamlArray;
+	}
+
+	public function getYamlArray(): array
+	{
+		return $this->yamlArray;
+	}
+
+	public function getYamlString(): string
+	{
+		return $this->yamlString;
+	}
+
+	public function isParsed(): bool
+	{
+		return gettype($this->yamlArray) === 'Array';
+	}
+
+	/**
+	 * Implement some magic methods
+	 */
+	public function __toString(): string
+	{
+		return $this->yamlString;
 	}
 }
