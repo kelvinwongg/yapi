@@ -11,10 +11,7 @@ namespace Kelvinwongg\Yapi\Core;
  */
 interface FileInterface
 {
-	public static function fromYamlString(string $yaml): self;
-	public static function fromPath(string $filepath): self;
-	public function setYamlArray(array $yamlArray): void;
-	public function getYamlArray(): array;
+	public function getFilepath(): string;
 	public function getYamlString(): string;
-	public function isParsed(): bool;
+	public function getYamlArray(): array;
 }

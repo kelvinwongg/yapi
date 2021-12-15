@@ -17,8 +17,13 @@ use Kelvinwongg\Yapi\Core\DatabaseInterface;
 
 class Yapi implements YapiInterface
 {
-	public function __construct(string $filepath = '')
+	private File $file;
+
+	public function __construct(string $pathORstring)
 	{
+		$this->file = new File($pathORstring);
+		// xd($this->file);
+
 		/**
 		 * 1. Handle the request
 		 */

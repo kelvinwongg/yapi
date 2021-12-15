@@ -2,38 +2,28 @@
 
 namespace Kelvinwongg\Yapi\Core;
 
+use function Kelvinwongg\Yapi\Util\{xd};
+
 class File implements FileInterface
 {
 	private $filepath;
-	private $yamlArray;
 	private $yamlString;
+	private $yamlArray;
 
-	private function __construct(string $yamlString)
+	public function __construct(string $pathORstring)
 	{
-		$this->yamlString = $yamlString;
+		$this->filepath = $this->findPath($pathORstring);
+		if ($this->filepath) {
+			$this->yamlString = file_get_contents($this->filepath);
+		} else {
+			$this->yamlString = $pathORstring;
+		}
+		$this->yamlArray = \yaml_parse($this->yamlString);
 	}
 
-	public static function fromYamlString(string $yamlString): self
+	public function getFilepath(): string
 	{
-		return new self($yamlString);
-	}
-
-	public static function fromPath(string $filepath): self
-	{
-		$yamlString = file_get_contents($filepath);
-		$self = new self($yamlString);
-		$self->filepath = $filepath;
-		return $self;
-	}
-
-	public function setYamlArray(array $yamlArray): void
-	{
-		$this->yamlArray = $yamlArray;
-	}
-
-	public function getYamlArray(): array
-	{
-		return $this->yamlArray;
+		return $this->filepath;
 	}
 
 	public function getYamlString(): string
@@ -41,9 +31,38 @@ class File implements FileInterface
 		return $this->yamlString;
 	}
 
-	public function isParsed(): bool
+	public function getYamlArray(): array
 	{
-		return gettype($this->yamlArray) === 'Array';
+		return $this->yamlArray;
+	}
+
+	protected function findPath($pathORstring): string
+	{
+		$path = FALSE;
+		switch (substr($pathORstring, 0, 2)) {
+			case '':
+				# empty string
+				break;
+			case './':
+				# relative path
+				$path = getcwd() . '/' . substr($pathORstring, 2, strlen($pathORstring) - 2);
+				break;
+			case '..':
+				# relative path
+				$path = getcwd() . '/' . $pathORstring;
+				break;
+			case (preg_match('/^\//', $pathORstring) ? true : false):
+				# absolute path
+				$path = $pathORstring;
+				break;
+			default:
+				# yamlstring
+				break;
+		}
+		if (!@file_exists($path)) {
+			throw new \Exception('Invalid file path');
+		}
+		return $path;
 	}
 
 	/**
