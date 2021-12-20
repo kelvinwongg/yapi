@@ -13,7 +13,7 @@ interface YapiInterface
 	/**
 	 * exec
 	 * 
-	 * Run at __construct function.
+	 * Run at __construct function. ?? Or manually call this method ??
 	 * Process the YAPI normal flow if a YAML file presents.
 	 *
 	 * @param FileInterface $file
@@ -37,6 +37,8 @@ interface YapiInterface
 	 * Check the integrity of the YAML file.
 	 * Without any actual change to the database (dry run).
 	 * Return boolean on success/failure.
+	 * ?? Is it necessary to check the YAML file ??
+	 * ?? Should it be let failed and throw errors when the YAML data is incorrect ??
 	 *
 	 * @return boolean
 	 */
@@ -51,7 +53,7 @@ interface YapiInterface
 	 *
 	 * @return boolean
 	 */
-	public static function checkDatabase(FileInterface $file): bool;
+	public static function checkDatabase(FileInterface $file, DatabaseInterface $database): bool;
 
 	/**
 	 * createDatabase

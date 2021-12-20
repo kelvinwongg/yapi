@@ -22,7 +22,7 @@ class Yapi implements YapiInterface
 	public function __construct(string $pathORstring)
 	{
 		$this->file = new File($pathORstring);
-		// xd($this->file);
+		xd($this->file);
 
 		/**
 		 * 1. Handle the request
@@ -70,7 +70,7 @@ class Yapi implements YapiInterface
 		return true;
 	}
 
-	public static function checkDatabase(FileInterface $file): bool
+	public static function checkDatabase(FileInterface $file, DatabaseInterface $database): bool
 	{
 		return true;
 	}
