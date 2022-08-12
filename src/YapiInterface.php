@@ -11,25 +11,24 @@ use Kelvinwongg\Yapi\Core\ParserInterface;
 interface YapiInterface
 {
 	/**
-	 * exec
+	 * loadYaml
 	 * 
-	 * Run at __construct function. ?? Or manually call this method ??
-	 * Process the YAPI normal flow if a YAML file presents.
+	 * Load YAML file into YAPI.
 	 *
 	 * @param FileInterface $file
-	 * @return ResponseInterface
+	 * @return FileInterface
 	 */
-	public function exec(FileInterface $file): ResponseInterface;
+	public function loadYaml(FileInterface|string $fileasdf): FileInterface;
 
 	/**
-	 * handleRequest
+	 * loadRequest
 	 * 
-	 * Handle inbound request.
+	 * Load inbound request into YAPI.
 	 * 
 	 * @param  RequestInterface $request
 	 * @return ResponseInterface
 	 */
-	public function handleRequest(RequestInterface $request): ResponseInterface;
+	public function loadRequest(RequestInterface $request): RequestInterface;
 
 	/**
 	 * checkYaml

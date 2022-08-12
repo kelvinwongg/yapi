@@ -18,43 +18,53 @@ use Kelvinwongg\Yapi\Core\DatabaseInterface;
 class Yapi implements YapiInterface
 {
 	private File $file;
+	private Request $request;
 
-	public function __construct(string|bool $pathORstring = false)
+	public function __construct(string|bool $pathORYamlStrORFile = false)
 	{
-		if ($pathORstring) {
-			$this->file = new File($pathORstring);
-			xd($this->file);
-		}
+		/**
+		 * Composer autoload for external packages and tools
+		 */
+		require_once __DIR__ . '/../vendor/autoload.php';
+		
+		/**
+		 * 1. Load the YAML
+		 */
+		if (!$pathORYamlStrORFile) throw new \Exception("File path is Missing");
+		$this->loadYaml($pathORYamlStrORFile);
+		// xd($this->file);
 
 		/**
-		 * 1. Handle the request
+		 * 2. Handle the request
+		 */
+		$this->loadRequest();
+		// xd($this->request);
+
+		/**
+		 * 3. Check YAML file
 		 */
 
 		/**
-		 * 2. Check YAML file
+		 * 4. Check and create database against YAML file
 		 */
 
 		/**
-		 * 3. Check and create database against YAML file
+		 * 5. Before hook, CRUD operations, After hook
 		 */
 
 		/**
-		 * 4. Before hook, CRUD operations, After hook
-		 */
-
-		/**
-		 * 5. Handle the response
+		 * 6. Handle the response
 		 */
 	}
 
-	public function exec(FileInterface $file): ResponseInterface
+	public function loadYaml(FileInterface|string|bool $pathORYamlStrORFile = FALSE): FileInterface
 	{
-		return new Response();
+		return $this->file = new File($pathORYamlStrORFile);
 	}
 
-	public function handleRequest(RequestInterface $request): ResponseInterface
+	public function loadRequest(RequestInterface|bool $request = FALSE): RequestInterface
 	{
-		return new Response();
+		return $this->request = Request::fromGlobal();
 	}
 
 	public static function checkYaml(FileInterface $file, ParserInterface $parser): bool

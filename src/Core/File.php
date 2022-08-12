@@ -12,7 +12,7 @@ class File implements FileInterface
 
 	public function __construct(string $pathORstring)
 	{
-		$this->filepath = $this->findPath($pathORstring);
+		$this->filepath = $this->filepathFromString($pathORstring);
 		if ($this->filepath) {
 			$this->yamlString = file_get_contents($this->filepath);
 		} else {
@@ -36,7 +36,7 @@ class File implements FileInterface
 		return $this->yamlArray;
 	}
 
-	protected function findPath($pathORstring): string
+	protected function filepathFromString($pathORstring): string
 	{
 		$path = FALSE;
 		switch (substr($pathORstring, 0, 2)) {
@@ -56,7 +56,8 @@ class File implements FileInterface
 				$path = $pathORstring;
 				break;
 			default:
-				# yamlstring
+				# yamlstring or path start without . and /
+				$path = getcwd() . '/' . $pathORstring;
 				break;
 		}
 		if (!@file_exists($path)) {
