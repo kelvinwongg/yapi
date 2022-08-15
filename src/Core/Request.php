@@ -7,22 +7,26 @@ use Kelvinwongg\Yapi\Core\RequestInterface;
 
 class Request implements RequestInterface
 {
-	private $scriptDirectory;
-	protected $uri;
-	protected $url;
+	public $url;
+	public $basepath;
+	public $path;
+	public $method;
 
-	public function __construct()
+	public function __construct($args)
 	{
-		$this->scriptDirectory = pathinfo($_SERVER['SCRIPT_NAME'])['dirname'];
-		$this->uri = str_replace($this->scriptDirectory, '', $_SERVER['REQUEST_URI']);
-		$this->url = parse_url($this->uri);
-		xd($this->scriptDirectory);
-		xd($this->uri);
-		xd($this->url);
+		$this->url = $args['url'];
+		$this->basepath = $args['basepath'];
+		$this->path = $args['path'];
+		$this->method = $args['method'];
 	}
 
 	public static function fromGlobal(): RequestInterface
 	{
-		return new self();
+		$dirname = pathinfo($_SERVER['SCRIPT_NAME'])['dirname'];
+		$global['url'] = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+		$global['basepath'] = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] . $dirname;
+		$global['path'] = str_replace($dirname, '', $_SERVER['REQUEST_URI']);
+		$global['method'] = strtolower($_SERVER['REQUEST_METHOD']);
+		return new self($global);
 	}
 }
