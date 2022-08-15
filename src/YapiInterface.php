@@ -7,9 +7,20 @@ use Kelvinwongg\Yapi\Core\RequestInterface;
 use Kelvinwongg\Yapi\Core\ResponseInterface;
 use Kelvinwongg\Yapi\Core\FileInterface;
 use Kelvinwongg\Yapi\Core\ParserInterface;
+use Kelvinwongg\Yapi\Core\Response;
 
 interface YapiInterface
 {
+	/**
+	 * initResponse
+	 *
+	 * Initialize the response object
+	 * 
+	 * @param ResponseInterface $response (optional) Create empty response if not exists
+	 * @return ResopnseInterface
+	 */
+	public function initResponse(ResponseInterface $response): ResponseInterface;
+
 	/**
 	 * loadYaml
 	 * 
@@ -74,7 +85,7 @@ interface YapiInterface
 	 * @param  FileInterface $file The YAML file.
 	 * @return ResponseInterface Return a response of normal flow.
 	 */
-	public function execCrud(FileInterface $file, RequestInterface $request): ResponseInterface;
+	public function execCrud(FileInterface $file, RequestInterface $request, ResponseInterface $response): ResponseInterface;
 
 	/**
 	 * handleResponse

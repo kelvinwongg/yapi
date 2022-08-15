@@ -17,8 +17,9 @@ use Kelvinwongg\Yapi\Core\DatabaseInterface;
 
 class Yapi implements YapiInterface
 {
-	private File $file;
-	private Request $request;
+	public File $file;
+	public Request $request;
+	public Response $response;
 
 	public function __construct(string|bool $pathORYamlStrORFile = false)
 	{
@@ -27,6 +28,11 @@ class Yapi implements YapiInterface
 		 */
 		require_once __DIR__ . '/../vendor/autoload.php';
 		
+		/**
+		 * 1. Init Response
+		 */
+		$this->initResponse();
+
 		/**
 		 * 1. Load the YAML
 		 */
@@ -51,11 +57,17 @@ class Yapi implements YapiInterface
 		/**
 		 * 5. Before hook, CRUD operations, After hook
 		 */
-		$this->execCrud($this->file, $this->request);
+		$this->execCrud($this->file, $this->request, $this->response);
 
 		/**
 		 * 6. Handle the response
 		 */
+	}
+
+	public function initResponse(ResponseInterface|bool $response = FALSE): ResponseInterface
+	{
+		if (!$response) { $response = new Response(); }
+		return $this->response = $response;
 	}
 
 	public function loadYaml(FileInterface|string|bool $pathORYamlStrORFile = FALSE): FileInterface
@@ -83,13 +95,14 @@ class Yapi implements YapiInterface
 		return new Database();
 	}
 
-	public function execCrud(FileInterface $file, RequestInterface $request): ResponseInterface
+	public function execCrud(FileInterface $file, RequestInterface $request, ResponseInterface $response): ResponseInterface
 	{
 		if ( !isset($file->getYamlArray()['paths'][$request->path]))
 			throw new \Exception("Request path does not exist");
 		if ( !isset($file->getYamlArray()['paths'][$request->path][$request->method]) )
 			throw new \Exception("Request method does not exist");
-		return new Response();
+		
+		return $response;
 	}
 
 	public function handleResponse(ResponseInterface $response): ResponseInterface
