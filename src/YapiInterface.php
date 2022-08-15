@@ -18,7 +18,7 @@ interface YapiInterface
 	 * @param FileInterface $file
 	 * @return FileInterface
 	 */
-	public function loadYaml(FileInterface|string $fileasdf): FileInterface;
+	public function loadYaml(FileInterface $file): FileInterface;
 
 	/**
 	 * loadRequest

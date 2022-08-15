@@ -69,16 +69,6 @@ class Yapi implements YapiInterface
 
 	public static function checkYaml(FileInterface $file, ParserInterface $parser): bool
 	{
-		if ($parser === NULL) {
-			$parser = new Parser();
-		}
-
-		/**
-		 * Parse and check YAML document
-		 */
-		$parser = new Parser($file);
-		$parser->parseYaml($file);
-
 		return true;
 	}
 
@@ -92,7 +82,7 @@ class Yapi implements YapiInterface
 		return new Database();
 	}
 
-	public function execCrud(FileInterface $file): ResponseInterface
+	public function execCrud(FileInterface|bool $file = FALSE): ResponseInterface
 	{
 		return new Response();
 	}
