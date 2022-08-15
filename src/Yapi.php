@@ -51,6 +51,7 @@ class Yapi implements YapiInterface
 		/**
 		 * 5. Before hook, CRUD operations, After hook
 		 */
+		$this->execCrud($this->file, $this->request);
 
 		/**
 		 * 6. Handle the response
@@ -82,8 +83,12 @@ class Yapi implements YapiInterface
 		return new Database();
 	}
 
-	public function execCrud(FileInterface|bool $file = FALSE): ResponseInterface
+	public function execCrud(FileInterface $file, RequestInterface $request): ResponseInterface
 	{
+		if ( !isset($file->getYamlArray()['paths'][$request->path]))
+			throw new \Exception("Request path does not exist");
+		if ( !isset($file->getYamlArray()['paths'][$request->path][$request->method]) )
+			throw new \Exception("Request method does not exist");
 		return new Response();
 	}
 
