@@ -97,7 +97,8 @@ class Response implements ResponseInterface
 
 	public function setStatusCode($statusCode): static
 	{
-		if (!array_key_exists($statusCode, self::$statusTexts)) throw new Exception(sprintf('Status code %s invalid.', $statusCode));
+		if (!array_key_exists($statusCode, self::$statusTexts))
+			throw new \Exception(sprintf('Status code %s invalid.', $statusCode));
 		$this->statusCode = $statusCode;
 		return $this;
 	}
