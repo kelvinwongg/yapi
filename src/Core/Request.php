@@ -14,10 +14,11 @@ class Request implements RequestInterface
 
 	public function __construct($args)
 	{
-		$this->url = $args['url'];
-		$this->basepath = $args['basepath'];
-		$this->path = $args['path'];
-		$this->method = $args['method'];
+		$this->url = $args['url'] ?? NULL;
+		$this->basepath = $args['basepath'] ?? NULL;
+		$this->path = $args['path'] ?? NULL;
+		$this->query = $args['query'] ?? NULL;
+		$this->method = $args['method'] ?? NULL;
 	}
 
 	public static function fromGlobal(): RequestInterface
