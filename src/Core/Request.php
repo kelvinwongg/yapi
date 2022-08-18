@@ -29,7 +29,9 @@ class Request implements RequestInterface
 		$global['url'] = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 		$global['basepath'] = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] . $dirname;
 		$global['path'] = str_replace($dirname, '', $uri['path']);
-		parse_str($uri['query'], $global['query']);
+		if ($uri['query'] ?? FALSE) {
+			parse_str($uri['query'], $global['query']);
+		}
 		$global['method'] = strtolower($_SERVER['REQUEST_METHOD']);
 
 		return new self($global);
