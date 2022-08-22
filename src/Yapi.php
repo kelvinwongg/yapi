@@ -97,7 +97,7 @@ class Yapi implements YapiInterface
 	{
 		try {
 			// 
-			// Validate the inbound request with YAML
+			// Validate the inbound request with YAML file
 			// 
 
 			// Check path
@@ -120,14 +120,17 @@ class Yapi implements YapiInterface
 					405
 				);
 
-			// Found request method (revamp for complex path with placeholder)
+			// Find request method
+			// Todo: revamp for complex path with placeholder
 			$requestMethodFound = $file->getYamlArray()['paths'][$request->path][$request->method];
 			// xd($requestMethodFound);
 
 			foreach ($requestMethodFound['parameters'] as $thisParameter) {
-				// Check if required parameters exists
+				$thisQueryValue = $request->query[$thisParameter['name']] ?? NULL;
+
+				// Check required parameter
 				if (array_key_exists('required', $thisParameter)) {
-					if (!$request->query || !array_key_exists($thisParameter['name'], $request->query)) {
+					if (!$request->query || !isset($thisQueryValue)) {
 						throw new \Exception(
 							sprintf(
 								"Required parameter is missing: %s.",
@@ -137,69 +140,20 @@ class Yapi implements YapiInterface
 						);
 					}
 				}
-				// Check parameters schema (type, minimum, maximum)
-				if ($thisParameter['schema'] ?? FALSE) {
-					if ($thisParameter['schema']['type'] ?? FALSE) {
-						switch ($thisParameter['schema']['type']) {
-							case 'integer':
-								if (isset($request->query[$thisParameter['name']])) {
-									if (!Request::is_integer($request->query[$thisParameter['name']])) {
-										throw new \Exception(
-											sprintf(
-												"Request parameter (%s) type mismatched (%s).",
-												$thisParameter['name'],
-												'integer'
-											),
-											400
-										);
-									}
-								} else { /* Do nothing if parameter not found in $request */
-								}
-								break;
-							case 'float':
-								if (isset($request->query[$thisParameter['name']])) {
-									if (!Request::is_float($request->query[$thisParameter['name']])) {
-										throw new \Exception(
-											sprintf(
-												"Request parameter (%s) type mismatched (%s).",
-												$thisParameter['name'],
-												'float'
-											),
-											400
-										);
-									}
-								} else { /* Do nothing if parameter not found in $request */
-								}
-								break;
-							case 'boolean':
-								if (isset($request->query[$thisParameter['name']])) {
-									if (!Request::is_boolean($request->query[$thisParameter['name']])) {
-										throw new \Exception(
-											sprintf(
-												"Request parameter (%s) type mismatched (%s).",
-												$thisParameter['name'],
-												'boolean'
-											),
-											400
-										);
-									}
-								} else { /* Do nothing if parameter not found in $request */
-								}
-								break;
-							case 'string':
-								// Do nothing for string parameter schema type
-								break;
-							default:
-								throw new \Exception(
-									sprintf(
-										"Invalid parameter schema type: %s.",
-										$thisParameter['name']
-									),
-									501
-								);
-								break;
-						}
-					} else {
+
+				// Only check if parameter exists in request
+				if (isset($thisQueryValue)) {
+					// Check parameter schema
+					if (!isset($thisParameter['schema'])) {
+						throw new \Exception(
+							sprintf(
+								"Parameter schema is not defined: %s.",
+								$thisParameter['name']
+							),
+							501
+						);
+					}
+					if (!isset($thisParameter['schema']['type'])) {
 						throw new \Exception(
 							sprintf(
 								"Parameter schema type is not defined: %s.",
@@ -208,14 +162,43 @@ class Yapi implements YapiInterface
 							501
 						);
 					}
-				} else {
-					throw new \Exception(
-						sprintf(
-							"Parameter schema is not defined: %s.",
-							$thisParameter['name']
-						),
-						501
-					);
+
+					// Check parameter type
+					switch ($thisParameter['schema']['type']) {
+						case 'integer':
+						case 'float':
+						case 'boolean':
+							if (!call_user_func(
+								[
+									__NAMESPACE__ . '\Core\Request',
+									'is_' . $thisParameter['schema']['type']
+								],
+								$thisQueryValue
+							)) {
+								throw new \Exception(
+									sprintf(
+										"Request parameter (%s) type mismatched (%s).",
+										$thisParameter['name'],
+										$thisParameter['schema']['type']
+									),
+									400
+								);
+							}
+							break;
+						case 'string':
+							// Check nothing for string parameter schema type
+							break;
+						default:
+							throw new \Exception(
+								sprintf(
+									"Invalid parameter (%s) schema type (%s).",
+									$thisParameter['name'],
+									$thisParameter['schema']['type']
+								),
+								501
+							);
+							break;
+					}
 				}
 			}
 		} catch (\Exception $e) {
