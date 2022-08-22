@@ -36,4 +36,21 @@ class Request implements RequestInterface
 
 		return new self($global);
 	}
+
+	public static function is_integer(string $value): bool
+	{
+		$castedValue = (int) $value;
+		return (strval($castedValue) === $value);
+	}
+
+	public static function is_float(string $value): bool
+	{
+		$castedValue = (float) $value;
+		return (strval($castedValue) === $value);
+	}
+
+	public static function is_boolean(string $value): bool
+	{
+		return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+	}
 }

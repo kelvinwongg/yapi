@@ -134,7 +134,7 @@ class Response implements ResponseInterface
 			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 	}
 
 	public function redirect($location): bool

@@ -42,17 +42,18 @@ interface YapiInterface
 	public function loadRequest(RequestInterface $request): RequestInterface;
 
 	/**
-	 * checkYaml
+	 * checkRequest
 	 * 
-	 * Check the integrity of the YAML file.
+	 * Check the integrity of inbound request against the YAML file.
 	 * Without any actual change to the database (dry run).
-	 * Return boolean on success/failure.
+	 * Return TRUE on success.
+	 * Throw Exception on failure.
 	 * ?? Is it necessary to check the YAML file ??
 	 * ?? Should it be let failed and throw errors when the YAML data is incorrect ??
 	 *
 	 * @return boolean
 	 */
-	public static function checkYaml(FileInterface $file, ParserInterface $parser): bool;
+	public static function checkRequest(FileInterface $file, RequestInterface $request): bool;
 
 	/**
 	 * checkDatabase
