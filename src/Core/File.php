@@ -61,7 +61,13 @@ class File implements FileInterface
 				break;
 		}
 		if (!@file_exists($path)) {
-			throw new \Exception('Invalid file path');
+			throw new \Exception(
+				sprintf(
+					'File path do not exists: %s',
+					$path
+				),
+				500
+			);
 		}
 		return $path;
 	}

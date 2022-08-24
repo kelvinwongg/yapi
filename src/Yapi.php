@@ -93,6 +93,7 @@ class Yapi implements YapiInterface
 		return $this->request = $request;
 	}
 
+	// Todo: Refactor Yapi::checkRequest into several functions
 	public static function checkRequest(FileInterface $file, RequestInterface $request): bool
 	{
 		try {
@@ -121,10 +122,11 @@ class Yapi implements YapiInterface
 				);
 
 			// Find request method
-			// Todo: revamp for complex path with placeholder
+			// Todo: Handle path parameters
 			$requestMethodFound = $file->getYamlArray()['paths'][$request->path][$request->method];
 			// xd($requestMethodFound);
 
+			// Todo: Handle path, header, and cookie parameter
 			foreach ($requestMethodFound['parameters'] as $thisParameter) {
 				$thisQueryValue = $request->query[$thisParameter['name']] ?? NULL;
 
@@ -141,7 +143,7 @@ class Yapi implements YapiInterface
 					}
 				}
 
-				// Only check if parameter exists in request
+				// Only check if this parameter exists in request
 				if (isset($thisQueryValue)) {
 					// Check parameter schema
 					if (!isset($thisParameter['schema'])) {
@@ -199,6 +201,35 @@ class Yapi implements YapiInterface
 							);
 							break;
 					}
+
+					// Check parameter minimum and maximum
+					if ($thisParameter['schema']['type'] == 'integer' || $thisParameter['schema']['type'] == 'float') {
+						$castQueryValue = ($thisParameter['schema']['type'] == 'integer') ? intval($thisQueryValue) : floatval($thisQueryValue);
+						if (isset($thisParameter['schema']['minimum'])) {
+							if ($castQueryValue < $thisParameter['schema']['minimum']) {
+								throw new \Exception(
+									sprintf(
+										"Parameter (%s) is lower than minimum (%s).",
+										$thisParameter['name'],
+										$thisParameter['schema']['minimum']
+									),
+									400
+								);
+							}
+						}
+						if (isset($thisParameter['schema']['maximum'])) {
+							if ($castQueryValue > $thisParameter['schema']['maximum']) {
+								throw new \Exception(
+									sprintf(
+										"Parameter (%s) is higher than maximum (%s).",
+										$thisParameter['name'],
+										$thisParameter['schema']['maximum']
+									),
+									400
+								);
+							}
+						}
+					}
 				}
 			}
 		} catch (\Exception $e) {
@@ -219,9 +250,39 @@ class Yapi implements YapiInterface
 		return new Database();
 	}
 
-	public function execCrud(FileInterface $file, RequestInterface $request, ResponseInterface $response): ResponseInterface
+	public function execCrud(FileInterface $file, RequestInterface $request, ResponseInterface $response): bool
 	{
-		return $response;
+		// Figure out the path to the 'paths' file
+		$path = getcwd() . '/paths';
+		if (!@file_exists($path)) {
+			throw new \Exception(
+				sprintf(
+					'Execution file not found: %s',
+					$path
+				),
+				500
+			);
+		}
+		if (@file_exists($path . $request->path . '.php')) {
+			$path = $path . $request->path . '.php';
+		} elseif (@file_exists($path . $request->path . '/index.php')) {
+			$path = $path . $request->path . '/index.php';
+		} else {
+			throw new \Exception(
+				sprintf(
+					'Execution file for request not found: %s',
+					$request->path
+				),
+				500
+			);
+		}
+
+		/**
+		 * Now we have the $path to our corresponding execution file
+		 * How can i loading in the correct class and execute the right file?
+		 */
+
+		return TRUE;
 	}
 
 	public function handleResponse(ResponseInterface $response): ResponseInterface

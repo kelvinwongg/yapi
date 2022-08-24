@@ -84,9 +84,9 @@ interface YapiInterface
 	 * Do the before/after hooks if exists.
 	 *
 	 * @param  FileInterface $file The YAML file.
-	 * @return ResponseInterface Return a response of normal flow.
+	 * @return bool TRUE on success.
 	 */
-	public function execCrud(FileInterface $file, RequestInterface $request, ResponseInterface $response): ResponseInterface;
+	public function execCrud(FileInterface $file, RequestInterface $request, ResponseInterface $response): bool;
 
 	/**
 	 * handleResponse
