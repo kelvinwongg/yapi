@@ -280,6 +280,8 @@ class Yapi implements YapiInterface
 		/**
 		 * Now we have the $path to our corresponding execution file
 		 * How can i loading in the correct class and execute the right file?
+		 * - Load in the corresponding class
+		 * - Call the corresponding method with the $request object
 		 */
 
 		return TRUE;
