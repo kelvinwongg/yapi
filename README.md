@@ -1,7 +1,7 @@
 # YAPI
-A single declarative yaml document crud api cms framwork, or whatever
+A zero-configuration, single declarative YAML document, HTTP CRUD API framwork.
 
-# Preface
+# Story
 You want to quickly setup a API endpoint for some data. There are many ways and frameworks that does that. But the problem is, as a professional developer, you want to work straight into the business, not spending your life for a repetitive story from every frameworks that come across:
 
 > You've spending weeks or months on learning a new framwork, reading its documentations, testing and playing along. Then, for the deliverable, you write a RESTful endpoint that simply do CRUD operations from a database.
@@ -13,4 +13,7 @@ Recently I went to a new job, and going the same process again. This time I have
 **The YAPI project is just does that!**
 
 # How it works
-YAPI is all about YAML files, You give it a YAML file, and YAPI do things for you. Be it construct a database and create a RESTful API endpoints that does normal CRUD operation to the database. You can also hook into the endpoints and doing just whatever you want with your own programming languages, and even opt-in to response to client-side with the object methods provided by YAPI.
+YAPI is complying with OAS3.
+YAPI is all about a YAML file, You feed it with a YAML file, and it does things for you.
+Be it construct a database and create a RESTful API endpoints that does normal CRUD operation to the database.
+You can also hook into the endpoints and doing just whatever you want with your own programming languages, or opt-in to response to client with the methods provided by YAPI.
