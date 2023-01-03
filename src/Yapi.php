@@ -83,6 +83,11 @@ class Yapi implements YapiInterface
 
 	public function loadYaml(FileInterface|string|bool $pathORYamlStrORFile = FALSE): FileInterface
 	{
+		// Is a File object
+		if (gettype($pathORYamlStrORFile) === 'object' && get_class($pathORYamlStrORFile) === __NAMESPACE__ . 'Core\File') {
+			return $this->file = $pathORYamlStrORFile;
+		}
+		// Is a Path or YAML String
 		return $this->file = new File($pathORYamlStrORFile);
 	}
 
