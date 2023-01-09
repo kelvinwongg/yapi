@@ -20,7 +20,9 @@ class Yapi implements YapiInterface
 	public File $file;
 	public Request $request;
 	public Response $response;
-	private array $requestMethodFound;
+	private $crudHook;
+	private $beforeHook;
+	private $afterHook;
 
 	public function __construct(string|bool $pathORYamlStrORFile = false)
 	{
@@ -61,6 +63,7 @@ class Yapi implements YapiInterface
 			/**
 			 * 6. Before hook, CRUD operations, After hook
 			 */
+			$this->crudHook = new \stdClass();
 			$this->execCrud($this->file, $this->request, $this->response);
 		} catch (\Exception $e) {
 			$this->response
@@ -257,21 +260,21 @@ class Yapi implements YapiInterface
 
 	public function execCrud(FileInterface $file, RequestInterface $request, ResponseInterface $response): bool
 	{
-		// Figure out the path to the 'paths' file
-		$path = getcwd() . '/paths';
-		if (!@file_exists($path)) {
+		// Figure out the path to the file as stated in the YAML
+		$filepath = getcwd() . '/paths';
+		if (!@file_exists($filepath)) {
 			throw new \Exception(
 				sprintf(
 					'Execution file not found: %s',
-					$path
+					$filepath
 				),
 				500
 			);
 		}
-		if (@file_exists($path . $request->path . '.php')) {
-			$path = $path . $request->path . '.php';
-		} elseif (@file_exists($path . $request->path . '/index.php')) {
-			$path = $path . $request->path . '/index.php';
+		if (@file_exists($filepath . $request->path . '.php')) {
+			$filepath = $filepath . $request->path . '.php';
+		} elseif (@file_exists($filepath . $request->path . '/index.php')) {
+			$filepath = $filepath . $request->path . '/index.php';
 		} else {
 			throw new \Exception(
 				sprintf(
@@ -281,13 +284,29 @@ class Yapi implements YapiInterface
 				500
 			);
 		}
+		$this->crudHook->filepath = $filepath;
 
-		/**
-		 * Now we have the $path to our corresponding execution file
-		 * How can i loading in the correct class and execute the right file?
-		 * - Load in the corresponding class
-		 * - Call the corresponding method with the $request object
-		 */
+		// Find CRUD Hook classname
+		$declared_classes_before = get_declared_classes();
+		require $this->crudHook->filepath;
+		$classname = array_values(array_diff(get_declared_classes(), $declared_classes_before));
+
+		if (count($classname) !== 1) {
+			throw new \Exception(
+				sprintf(
+					'Only one class be can defined in the request Execution file: %s',
+					$this->crudHook->filepath
+				),
+				500
+			);
+		}
+		$this->crudHook->classname = $classname[0];
+
+		// Init CRUD Hook object
+		$this->crudHook->instance = new $this->crudHook->classname($file, $request, $response, $this->crudHook);
+
+		// Call request method in the CRUD Hook object
+		$this->crudHook->instance->{$this->request->method}($file, $request, $response, $this->crudHook);
 
 		return TRUE;
 	}
