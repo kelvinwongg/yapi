@@ -101,7 +101,7 @@ class Employees
 
 **Request**
 ```console
-curl -L -X GET 'http://localhost/yapi-sample/employees?bodyLimit=10'
+curl -L -X GET 'http://localhost/employees?bodyLimit=10'
 ```
 
 **Response**
@@ -113,10 +113,13 @@ curl -L -X GET 'http://localhost/yapi-sample/employees?bodyLimit=10'
 ```
 
 # How it works
-YAPI is complying with OAS3.
-YAPI is all about a YAML file, You feed it with a YAML file, and it does things for you.
-Be it construct a database and create a RESTful API endpoints that does normal CRUD operation to the database.
-You can also hook into the endpoints and doing just whatever you want with your own programming languages, or opt-in to response to client with the methods provided by YAPI.
+1. YAPI is complying with OAS3.
+
+2. YAPI is all about a YAML file, You feed it with a YAML file, and it does things for you.
+
+3. Be it construct a database and create a RESTful API endpoints that does normal CRUD operation to the database.
+
+4. You can also hook into the endpoints and doing just whatever you want with your own programming languages, or opt-in to response to client with the methods provided by YAPI.
 
 # The Story
 You want to quickly setup a API endpoint for some data. There are many ways and frameworks that does that. But the problem is, as a professional developer, you want to work straight into the business, not spending your life for a repetitive story from every frameworks that come across:
