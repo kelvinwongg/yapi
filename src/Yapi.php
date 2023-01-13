@@ -109,15 +109,8 @@ class Yapi implements YapiInterface
 			// Validate the inbound request with YAML file
 			// 
 
-			// Check path
-			if (!isset($file->getYamlArray()['paths'][$request->path]))
-				throw new \Exception(
-					sprintf(
-						"Request path does not exist: %s.",
-						$request->path
-					),
-					404
-				);
+			// Match path
+			self::matchPath($file, $request);
 
 			// Check method
 			if (!isset($file->getYamlArray()['paths'][$request->path][$request->method]))
@@ -315,5 +308,78 @@ class Yapi implements YapiInterface
 	{
 		$response->send();
 		return $response;
+	}
+
+	/**
+	 * This function match Parameter Types for Path and Query
+	 * https://swagger.io/docs/specification/describing-parameters/#path-parameters
+	 * https://swagger.io/docs/specification/describing-parameters/#query-parameters
+	 */
+	private static function matchPath(FileInterface $file, RequestInterface &$request)
+	{
+		// Convert and match $request with paths in $file
+		$path_match = FALSE;
+		foreach (self::convertPathRegexp($file) as $this_path => $this_regexp) {
+			if (preg_match($this_regexp, $request->path, $matches)) {
+				$path_match = [
+					'path' => $this_path,
+					'path_parameters' => array_filter($matches, fn($key) => (is_string($key) && substr( $key, 0, 1 ) !== "_"), ARRAY_FILTER_USE_KEY)
+				];
+				break;
+			}
+		}
+		if (!$path_match) {
+			throw new \Exception(
+				sprintf(
+					"Request path does not exist: %s.",
+					$request->path
+				),
+				404
+			);
+		}
+		$request->match = $path_match;
+		return $path_match;
+	}
+
+	/**
+	 * Convert each paths in YAML into regex to match path in request
+	 * Reference: https://codeigniter.com/user_guide/incoming/routing.html#auto-routing-improved
+	 * 
+	 * Before: /employees
+	 * After: /^(?<_1>\/employees)\/?$/
+	 * 
+	 * Before: /employees/{id}
+	 * After: /^(?<_1>\/employees)\/(?<id>[^\/]+)\/?$/
+	 */
+	private static function convertPathRegexp(FileInterface $file)
+	{
+		$ret = [];
+		foreach (array_keys($file->getYamlArray()['paths']) as $this_path) {
+			// Convert parts not in curly brace
+			$not_in_curly = '/(^\/[^{}\/]+(?![^{]*})|[^{}\/]+(?![^{]*}))/';
+			$regexp = preg_replace_callback($not_in_curly, function ($match) {
+				static $count = 0;
+				$count++;
+				return "(?<_{$count}>{$match[0]})";
+			}, $this_path);
+			// xd($regexp);
+
+			// Convert slashes
+			$slash = '/(\/)/';
+			$regexp = preg_replace_callback($slash, function ($match) {
+				return "\/";
+			}, $regexp);
+			// xd($regexp);
+
+			// Convert curly brace parts
+			$curly_brace = '/{(.+)}/';
+			$regexp = preg_replace_callback($curly_brace, function ($match) {
+				return "(?<{$match[1]}>[^\/]+)";
+			}, $regexp);
+			// xd($regexp);
+			
+			$ret[$this_path] = '/^' . $regexp . '\/?$/';
+		}
+		return $ret;
 	}
 }
