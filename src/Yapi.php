@@ -20,16 +20,23 @@ class Yapi implements YapiInterface
 	public File $file;
 	public Request $request;
 	public Response $response;
-	private $crudHook;
-	private $beforeHook;
-	private $afterHook;
+	// Todo: Create Core\HookInterface
+	protected $crudHook;
+	protected $beforeHook;
+	protected $afterHook;
+	protected $config;
 
-	public function __construct(string|bool $pathORYamlStrORFile = false)
+	public function __construct(string|bool $pathORYamlStrORFile = false, array $config = [])
 	{
 		/**
 		 * Composer autoload for external packages and tools
 		 */
 		require_once __DIR__ . '/../vendor/autoload.php';
+
+		// Merge $config with default values
+		$this->config = array_merge(array(
+			'paths' => '/paths',
+		), $config);
 
 		try {
 			/**
@@ -55,6 +62,7 @@ class Yapi implements YapiInterface
 			 * 4. Check request against YAML file
 			 */
 			$this->checkRequest($this->file, $this->request);
+			// xd($this->request);
 
 			/**
 			 * 5. Check and create database against YAML file
@@ -65,6 +73,10 @@ class Yapi implements YapiInterface
 			 */
 			$this->crudHook = new \stdClass();
 			$this->execCrud($this->file, $this->request, $this->response);
+			// xd($this->request);
+			// xd($this->response);
+			// xd($this->crudHook);
+			// xd($this->file);
 		} catch (\Exception $e) {
 			$this->response
 				->setContent($e->getMessage())
@@ -138,45 +150,32 @@ class Yapi implements YapiInterface
 	public function execCrud(FileInterface $file, RequestInterface $request, ResponseInterface $response): bool
 	{
 		// Figure out the path to the file as stated in the YAML
-		$filepath = getcwd() . '/paths';
-		if (!@file_exists($filepath)) {
-			throw new \Exception(
-				sprintf(
-					'Execution file not found: %s',
-					$filepath
-				),
-				500
-			);
-		}
-		if (@file_exists($filepath . $request->path . '.php')) {
-			$filepath = $filepath . $request->path . '.php';
-		} elseif (@file_exists($filepath . $request->path . '/index.php')) {
-			$filepath = $filepath . $request->path . '/index.php';
-		} else {
-			throw new \Exception(
-				sprintf(
-					'Execution file for request not found: %s',
-					$request->path
-				),
-				500
-			);
-		}
-		$this->crudHook->filepath = $filepath;
+		$this->crudHook->filepath = $this->findHookFile($request);
 
 		// Find CRUD Hook classname
 		$declared_classes_before = get_declared_classes();
 		require $this->crudHook->filepath;
 		$classname = array_values(array_diff(get_declared_classes(), $declared_classes_before));
 
-		if (count($classname) !== 1) {
+		if (count($classname) === 0) {
 			throw new \Exception(
 				sprintf(
-					'Only one class be can defined in the request Execution file: %s',
+					'No class is defined in the request Execution file: %s',
 					$this->crudHook->filepath
 				),
 				500
 			);
 		}
+		if (count($classname) > 1) {
+			throw new \Exception(
+				sprintf(
+					'Only one class could be defined in the request Execution file: %s',
+					$this->crudHook->filepath
+				),
+				500
+			);
+		}
+
 		$this->crudHook->classname = $classname[0];
 
 		// Init CRUD Hook object
@@ -289,7 +288,7 @@ class Yapi implements YapiInterface
 			// Get Parameter Value from Request
 			switch ($this_parameter['in']) {
 				case 'query':
-					$req_param_value = $request->query[$this_parameter['name']];
+					$req_param_value = ($request->query && array_key_exists($this_parameter['name'], $request->query)) ? $request->query[$this_parameter['name']] : NULL;
 					break;
 				case 'path':
 					$req_param_value = $request->match['path_parameters'][$this_parameter['name']];
@@ -408,5 +407,41 @@ class Yapi implements YapiInterface
 				}
 			}
 		}
+	}
+
+	private function findHookFile(RequestInterface $request): String
+	{
+		// Basepath for 'paths' directory
+		$filepath = getcwd() . $this->config['paths'];
+		if (!@file_exists($filepath)) {
+			throw new \Exception(
+				sprintf(
+					'Execution file directory not found: %s',
+					$filepath
+				),
+				500
+			);
+		}
+
+		// Todo: Handle multiple segments, path template uri, and trailing slash
+		xd($filepath . $request->path . '.php');
+		xd($filepath . $request->path . '/index.php');
+		xd($request);
+		xd($this->crudHook);
+		if (@file_exists($filepath . $request->path . '.php')) {
+			$filepath = $filepath . $request->path . '.php';
+		} elseif (@file_exists($filepath . $request->path . '/index.php')) {
+			$filepath = $filepath . $request->path . '/index.php';
+		} else {
+			throw new \Exception(
+				sprintf(
+					'Execution file for request not found: %s',
+					$request->path
+				),
+				500
+			);
+		}
+
+		return $filepath;
 	}
 }
