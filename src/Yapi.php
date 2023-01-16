@@ -101,7 +101,6 @@ class Yapi implements YapiInterface
 		return $this->request = $request;
 	}
 
-	// Todo: Refactor Yapi::checkRequest into several functions
 	public static function checkRequest(FileInterface $file, RequestInterface $request): bool
 	{
 		try {
@@ -112,127 +111,12 @@ class Yapi implements YapiInterface
 			// Match path
 			self::matchPath($file, $request);
 
-			// Check method
-			if (!isset($file->getYamlArray()['paths'][$request->path][$request->method]))
-				throw new \Exception(
-					sprintf(
-						"Request method does not exist: %s.",
-						$request->method
-					),
-					405
-				);
+			// Check operation
+			self::checkOperation($file, $request);
 
-			// Find request method
-			// Todo: Handle path parameters
-			$requestMethodFound = $file->getYamlArray()['paths'][$request->path][$request->method];
-			// xd($requestMethodFound);
-
-			// Todo: Handle path, header, and cookie parameter
-			foreach ($requestMethodFound['parameters'] as $thisParameter) {
-				$thisQueryValue = $request->query[$thisParameter['name']] ?? NULL;
-
-				// Check required parameter
-				if (array_key_exists('required', $thisParameter)) {
-					if (!$request->query || !isset($thisQueryValue)) {
-						throw new \Exception(
-							sprintf(
-								"Required parameter is missing: %s.",
-								$thisParameter['name']
-							),
-							400
-						);
-					}
-				}
-
-				// Only check if this parameter exists in request
-				if (isset($thisQueryValue)) {
-					// Check parameter schema
-					if (!isset($thisParameter['schema'])) {
-						throw new \Exception(
-							sprintf(
-								"Parameter schema is not defined: %s.",
-								$thisParameter['name']
-							),
-							501
-						);
-					}
-					if (!isset($thisParameter['schema']['type'])) {
-						throw new \Exception(
-							sprintf(
-								"Parameter schema type is not defined: %s.",
-								$thisParameter['name']
-							),
-							501
-						);
-					}
-
-					// Check parameter type
-					switch ($thisParameter['schema']['type']) {
-						case 'integer':
-						case 'float':
-						case 'boolean':
-							if (!call_user_func(
-								[
-									__NAMESPACE__ . '\Core\Request',
-									'is_' . $thisParameter['schema']['type']
-								],
-								$thisQueryValue
-							)) {
-								throw new \Exception(
-									sprintf(
-										"Request parameter (%s) type mismatched (%s).",
-										$thisParameter['name'],
-										$thisParameter['schema']['type']
-									),
-									400
-								);
-							}
-							break;
-						case 'string':
-							// Check nothing for string parameter schema type
-							break;
-						default:
-							throw new \Exception(
-								sprintf(
-									"Invalid parameter (%s) schema type (%s).",
-									$thisParameter['name'],
-									$thisParameter['schema']['type']
-								),
-								501
-							);
-							break;
-					}
-
-					// Check parameter minimum and maximum
-					if ($thisParameter['schema']['type'] == 'integer' || $thisParameter['schema']['type'] == 'float') {
-						$castQueryValue = ($thisParameter['schema']['type'] == 'integer') ? intval($thisQueryValue) : floatval($thisQueryValue);
-						if (isset($thisParameter['schema']['minimum'])) {
-							if ($castQueryValue < $thisParameter['schema']['minimum']) {
-								throw new \Exception(
-									sprintf(
-										"Parameter (%s) is lower than minimum (%s).",
-										$thisParameter['name'],
-										$thisParameter['schema']['minimum']
-									),
-									400
-								);
-							}
-						}
-						if (isset($thisParameter['schema']['maximum'])) {
-							if ($castQueryValue > $thisParameter['schema']['maximum']) {
-								throw new \Exception(
-									sprintf(
-										"Parameter (%s) is higher than maximum (%s).",
-										$thisParameter['name'],
-										$thisParameter['schema']['maximum']
-									),
-									400
-								);
-							}
-						}
-					}
-				}
-			}
+			// Check parameters
+			// Todo: Handle header, and cookie parameter
+			self::checkParameters($file, $request);
 		} catch (\Exception $e) {
 			throw $e;
 		}
@@ -323,7 +207,7 @@ class Yapi implements YapiInterface
 			if (preg_match($this_regexp, $request->path, $matches)) {
 				$path_match = [
 					'path' => $this_path,
-					'path_parameters' => array_filter($matches, fn($key) => (is_string($key) && substr( $key, 0, 1 ) !== "_"), ARRAY_FILTER_USE_KEY)
+					'path_parameters' => array_filter($matches, fn ($key) => (is_string($key) && substr($key, 0, 1) !== "_"), ARRAY_FILTER_USE_KEY)
 				];
 				break;
 			}
@@ -377,9 +261,152 @@ class Yapi implements YapiInterface
 				return "(?<{$match[1]}>[^\/]+)";
 			}, $regexp);
 			// xd($regexp);
-			
+
 			$ret[$this_path] = '/^' . $regexp . '\/?$/';
 		}
 		return $ret;
+	}
+
+	private static function checkOperation(FileInterface $file, RequestInterface $request)
+	{
+		$match_path = $file->getYamlArray()['paths'][$request->match['path']];
+		$match_operation = array_key_exists($request->method, $match_path) ? $match_path[$request->method] : FALSE;
+		if (!$match_operation)
+			throw new \Exception(
+				sprintf(
+					"Request method does not exist: %s.",
+					$request->method
+				),
+				405
+			);
+	}
+
+	private static function checkParameters(FileInterface $file, RequestInterface $request)
+	{
+		$match_path = $file->getYamlArray()['paths'][$request->match['path']];
+		$match_operation = array_key_exists($request->method, $match_path) ? $match_path[$request->method] : FALSE;
+		foreach ($match_operation['parameters'] as $this_parameter) {
+			// Get Parameter Value from Request
+			switch ($this_parameter['in']) {
+				case 'query':
+					$req_param_value = $request->query[$this_parameter['name']];
+					break;
+				case 'path':
+					$req_param_value = $request->match['path_parameters'][$this_parameter['name']];
+					break;
+				default:
+					$req_param_value = NULL;
+					break;
+			}
+
+			// Check required parameter
+			if (array_key_exists('required', $this_parameter) && $this_parameter['required']) {
+				if (!isset($req_param_value)) {
+					throw new \Exception(
+						sprintf(
+							"Required parameter is missing: %s.",
+							$this_parameter['name']
+						),
+						400
+					);
+				}
+			}
+			// xd($request);
+			// xd($this_parameter);
+			// xd($req_param_value);
+
+			// Only check if this parameter exists in request
+			if (isset($req_param_value)) {
+				// Check if parameter schema exists
+				if (!isset($this_parameter['schema'])) {
+					throw new \Exception(
+						sprintf(
+							"Parameter schema is not defined: %s.",
+							$this_parameter['name']
+						),
+						501
+					);
+				}
+
+				// Check if parameter type exists
+				if (!isset($this_parameter['schema']['type'])) {
+					throw new \Exception(
+						sprintf(
+							"Parameter schema type is not defined: %s.",
+							$this_parameter['name']
+						),
+						501
+					);
+				}
+
+				$this_param_type = $this_parameter['schema']['type'];
+
+				// Check this parameter type
+				switch ($this_param_type) {
+					case 'integer':
+					case 'float':
+					case 'boolean':
+						if (!call_user_func(
+							[
+								__NAMESPACE__ . '\Core\Request',
+								'is_' . $this_param_type
+							],
+							$req_param_value
+						)) {
+							throw new \Exception(
+								sprintf(
+									"Request parameter (%s) type mismatched (%s).",
+									$this_parameter['name'],
+									$this_param_type
+								),
+								400
+							);
+						}
+						break;
+					case 'string':
+						// Check nothing for string parameter schema type
+						break;
+					default:
+						throw new \Exception(
+							sprintf(
+								"Invalid parameter (%s) schema type (%s).",
+								$this_parameter['name'],
+								$this_param_type
+							),
+							501
+						);
+						break;
+				}
+
+				// Check parameter min/max for integer/float
+				if ($this_param_type == 'integer' || $this_param_type == 'float') {
+					$cast_req_param_value = ($this_param_type == 'integer') ? intval($req_param_value) : floatval($req_param_value);
+					if (isset($this_parameter['schema']['minimum'])) {
+						if ($cast_req_param_value < $this_parameter['schema']['minimum']) {
+							throw new \Exception(
+								sprintf(
+									"Parameter (%s) is lower than minimum (%s).",
+									$this_parameter['name'],
+									$this_parameter['schema']['minimum']
+								),
+								400
+							);
+						}
+					}
+					if (isset($this_parameter['schema']['maximum'])) {
+						if ($cast_req_param_value > $this_parameter['schema']['maximum']) {
+							throw new \Exception(
+								sprintf(
+									"Parameter (%s) is higher than maximum (%s).",
+									$this_parameter['name'],
+									$this_parameter['schema']['maximum']
+								),
+								400
+							);
+						}
+					}
+				}
+			}
+		}
 	}
 }
