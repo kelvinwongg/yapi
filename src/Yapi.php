@@ -423,20 +423,40 @@ class Yapi implements YapiInterface
 			);
 		}
 
-		// Todo: Handle multiple segments, path template uri, and trailing slash
-		xd($filepath . $request->path . '.php');
-		xd($filepath . $request->path . '/index.php');
-		xd($request);
-		xd($this->crudHook);
-		if (@file_exists($filepath . $request->path . '.php')) {
-			$filepath = $filepath . $request->path . '.php';
-		} elseif (@file_exists($filepath . $request->path . '/index.php')) {
-			$filepath = $filepath . $request->path . '/index.php';
-		} else {
+		/**
+		 * Find hook file path from specific to general
+		 * 
+		 * For example:
+		 * 
+		 * Request path: /employees/12
+		 * Match path: /employees/{id}
+		 * 
+		 * 1. /paths/employees/12.php::get()
+		 * 2. /paths/employees/id.php::get()
+		 * 3. /paths/employees/id/index.php::get()
+		 * 4. /paths/employees/index.php::id() (Todo: To be implemented)
+		 * 5. /paths/employees.php::id() (Todo: To be implemented)
+		 */
+
+		$found = FALSE;
+		$match_path = $request->match['path'];
+		$trial[] = $filepath . rtrim($request->path, "/") . '.php';
+		$trial[] = $filepath . str_replace(['{', '}'], '', $match_path) . '.php';
+		$trial[] = $filepath . str_replace(['{', '}'], '', $match_path) . '/index.php';
+
+		foreach ($trial as $this_trial) {
+			if (@file_exists($this_trial)) {
+				$filepath = $this_trial;
+				$found = TRUE;
+				break;
+			}
+		}
+
+		if (!$found) {
 			throw new \Exception(
 				sprintf(
 					'Execution file for request not found: %s',
-					$request->path
+					$match_path
 				),
 				500
 			);
