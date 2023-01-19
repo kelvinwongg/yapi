@@ -77,6 +77,17 @@ interface YapiInterface
 	public function createDatabase(FileInterface $file): ?DatabaseInterface;
 
 	/**
+	 * loadHook
+	 * 
+	 * Load Hook file from file path
+	 * Return the Hook instance
+	 * 
+	 * @param String $hookpath
+	 * @return HookInterface
+	 */
+	public function loadHook(string $hookpath): HookInterface;
+
+	/**
 	 * execCrud
 	 * 
 	 * Do the CRUD operation
@@ -85,7 +96,7 @@ interface YapiInterface
 	 * @param  FileInterface $file The YAML file.
 	 * @return bool TRUE on success.
 	 */
-	public function execCrud(HookInterface $hook, FileInterface $file, RequestInterface $request, ResponseInterface $response): bool;
+	public function execCrud(RequestInterface $request, ResponseInterface $response, FileInterface $file, HookInterface $hook): bool;
 
 	/**
 	 * handleResponse

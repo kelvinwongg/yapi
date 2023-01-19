@@ -18,7 +18,7 @@ namespace Kelvinwongg\Yapi\Core;
 interface HookInterface
 {
 	public static function fromRequest(RequestInterface $request, array $config): self;
-	public function callCrud(): bool;
-	public function callBefore(): bool;
-	public function callAfter(): bool;
+	public function callCrud(RequestInterface $request, ResponseInterface $response, FileInterface $file, HookInterface $hook): bool;
+	public function callBefore(RequestInterface $request, ResponseInterface $response, FileInterface $file, HookInterface $hook): bool;
+	public function callAfter(RequestInterface $request, ResponseInterface $response, FileInterface $file, HookInterface $hook): bool;
 }

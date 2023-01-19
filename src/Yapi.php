@@ -17,11 +17,11 @@ use Kelvinwongg\Yapi\Core\HookInterface;
 
 class Yapi implements YapiInterface
 {
-	public File $file;
 	public Request $request;
 	public Response $response;
+	public File $file;
 	protected Hook $hook;
-	protected Array $config;
+	protected array $config;
 
 	public function __construct(string|bool $pathORYamlStrORFile = false, array $config = [])
 	{
@@ -66,10 +66,16 @@ class Yapi implements YapiInterface
 			 */
 
 			/**
-			 * 6. Before hook, CRUD operations, After hook
+			 * 6. Load the Hook
 			 */
-			$this->hook = Hook::fromRequest($this->request, $this->config);
-			$this->execCrud($this->hook, $this->file, $this->request, $this->response);
+			$this->loadHook();
+
+			/**
+			 * 7. Before hook, CRUD operations, After hook
+			 */
+			$this->execBefore($this->request, $this->response, $this->file, $this->hook);
+			$this->execCrud($this->request, $this->response, $this->file, $this->hook);
+			$this->execAfter($this->request, $this->response, $this->file, $this->hook);
 			// xd($this->request);
 			// xd($this->response);
 			// xd($this->hook);
@@ -81,7 +87,7 @@ class Yapi implements YapiInterface
 		}
 
 		/**
-		 * 7. Handle the response
+		 * 8. Handle the response
 		 */
 		$this->handleResponse($this->response);
 	}
@@ -144,14 +150,31 @@ class Yapi implements YapiInterface
 		return new Database();
 	}
 
-	public function execCrud(HookInterface $hook, FileInterface $file, RequestInterface $request, ResponseInterface $response): bool
+	public function loadHook(string|bool $hookpath = FALSE): HookInterface
 	{
-		// Init CRUD Hook object
-		$hook->instance = new $hook->classname($file, $request, $response, $hook);
+		if (!$hookpath)
+			return $this->hook = Hook::fromRequest($this->request, $this->config);
+		return $this->hook = new Hook($hookpath);
+	}
 
+	public function execBefore(RequestInterface $request, ResponseInterface $response, FileInterface $file, HookInterface $hook): bool
+	{
+		// Call request method in the Before Hook object
+		$hook->callBefore($request, $response, $file, $hook);
+		return TRUE;
+	}
+
+	public function execCrud(RequestInterface $request, ResponseInterface $response, FileInterface $file, HookInterface $hook): bool
+	{
 		// Call request method in the CRUD Hook object
-		$hook->instance->{$this->request->method}($file, $request, $response, $hook);
+		$hook->callCrud($request, $response, $file, $hook);
+		return TRUE;
+	}
 
+	public function execAfter(RequestInterface $request, ResponseInterface $response, FileInterface $file, HookInterface $hook): bool
+	{
+		// Call request method in the After Hook object
+		$hook->callAfter($request, $response, $file, $hook);
 		return TRUE;
 	}
 

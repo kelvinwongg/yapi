@@ -9,6 +9,7 @@ class Hook implements HookInterface
 {
 	public $filepath;
 	public $classname;
+	public $instance;
 
 	public function __construct($filepath)
 	{
@@ -16,6 +17,9 @@ class Hook implements HookInterface
 
 		// Find CRUD Hook classname
 		$this->classname = $this->findHookFileClassname($this->filepath);
+
+		// Init CRUD Hook object
+		$this->instance = new $this->classname();
 	}
 
 	public static function fromRequest(RequestInterface $request, array $config): self
@@ -24,14 +28,26 @@ class Hook implements HookInterface
 		$path = self::findHookFilePath($request, $config);
 		return new self($path);
 	}
-	public function callCrud(): bool
+
+	public function callCrud(RequestInterface $request, ResponseInterface $response, FileInterface $file, HookInterface $hook): bool
 	{
+		$this->instance->{$request->method}($request, $response, $file, $hook);
 		return TRUE;
 	}
-	public function callBefore(): bool{
+
+	public function callBefore(RequestInterface $request, ResponseInterface $response, FileInterface $file, HookInterface $hook): bool
+	{
+		if (method_exists($this->instance, 'before')) {
+			$this->instance->before($request, $response, $file, $hook);
+		}
 		return TRUE;
 	}
-	public function callAfter(): bool{
+
+	public function callAfter(RequestInterface $request, ResponseInterface $response, FileInterface $file, HookInterface $hook): bool
+	{
+		if (method_exists($this->instance, 'after')) {
+			$this->instance->after($request, $response, $file, $hook);
+		}
 		return TRUE;
 	}
 
