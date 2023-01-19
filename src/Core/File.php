@@ -36,6 +36,38 @@ class File implements FileInterface
 		return $this->yamlArray;
 	}
 
+	public function convertPathRegexp(): array
+	{
+		$ret = [];
+		foreach (array_keys($this->getYamlArray()['paths']) as $this_path) {
+			// Convert parts not in curly brace
+			$not_in_curly = '/(^\/[^{}\/]+(?![^{]*})|[^{}\/]+(?![^{]*}))/';
+			$regexp = preg_replace_callback($not_in_curly, function ($match) {
+				static $count = 0;
+				$count++;
+				return "(?<_{$count}>{$match[0]})";
+			}, $this_path);
+			// xd($regexp);
+
+			// Convert slashes
+			$slash = '/(\/)/';
+			$regexp = preg_replace_callback($slash, function ($match) {
+				return "\/";
+			}, $regexp);
+			// xd($regexp);
+
+			// Convert curly brace parts
+			$curly_brace = '/{(.+)}/';
+			$regexp = preg_replace_callback($curly_brace, function ($match) {
+				return "(?<{$match[1]}>[^\/]+)";
+			}, $regexp);
+			// xd($regexp);
+
+			$ret[$this_path] = '/^' . $regexp . '\/?$/';
+		}
+		return $ret;
+	}
+
 	protected function filepathFromString($pathORstring): string
 	{
 		$path = FALSE;

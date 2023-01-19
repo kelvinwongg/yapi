@@ -10,6 +10,7 @@ class Request implements RequestInterface
 	public $url;
 	public $basepath;
 	public $path;
+	public $query;
 	public $method;
 
 	public function __construct($args)

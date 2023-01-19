@@ -6,25 +6,22 @@ use function Kelvinwongg\Yapi\Util\{xd};
 use Kelvinwongg\Yapi\YapiInterface;
 use Kelvinwongg\Yapi\Core\File;
 use Kelvinwongg\Yapi\Core\FileInterface;
-use Kelvinwongg\Yapi\Core\Parser;
-use Kelvinwongg\Yapi\Core\ParserInterface;
 use Kelvinwongg\Yapi\Core\Request;
 use Kelvinwongg\Yapi\Core\RequestInterface;
 use Kelvinwongg\Yapi\Core\Response;
 use Kelvinwongg\Yapi\Core\ResponseInterface;
 use Kelvinwongg\Yapi\Core\Database;
 use Kelvinwongg\Yapi\Core\DatabaseInterface;
+use Kelvinwongg\Yapi\Core\Hook;
+use Kelvinwongg\Yapi\Core\HookInterface;
 
 class Yapi implements YapiInterface
 {
 	public File $file;
 	public Request $request;
 	public Response $response;
-	// Todo: Create Core\HookInterface
-	protected $crudHook;
-	protected $beforeHook;
-	protected $afterHook;
-	protected $config;
+	protected Hook $hook;
+	protected Array $config;
 
 	public function __construct(string|bool $pathORYamlStrORFile = false, array $config = [])
 	{
@@ -71,11 +68,11 @@ class Yapi implements YapiInterface
 			/**
 			 * 6. Before hook, CRUD operations, After hook
 			 */
-			$this->crudHook = new \stdClass();
-			$this->execCrud($this->file, $this->request, $this->response);
+			$this->hook = Hook::fromRequest($this->request, $this->config);
+			$this->execCrud($this->hook, $this->file, $this->request, $this->response);
 			// xd($this->request);
 			// xd($this->response);
-			// xd($this->crudHook);
+			// xd($this->hook);
 			// xd($this->file);
 		} catch (\Exception $e) {
 			$this->response
@@ -137,52 +134,23 @@ class Yapi implements YapiInterface
 
 	public static function checkDatabase(FileInterface $file, DatabaseInterface $database): bool
 	{
-		// To be implemented
+		// Todo: To be implemented
 		return TRUE;
 	}
 
 	public function createDatabase(FileInterface $file): DatabaseInterface
 	{
-		// To be implemented
+		// Todo: To be implemented
 		return new Database();
 	}
 
-	public function execCrud(FileInterface $file, RequestInterface $request, ResponseInterface $response): bool
+	public function execCrud(HookInterface $hook, FileInterface $file, RequestInterface $request, ResponseInterface $response): bool
 	{
-		// Figure out the path to the file as stated in the YAML
-		$this->crudHook->filepath = $this->findHookFile($request);
-
-		// Find CRUD Hook classname
-		$declared_classes_before = get_declared_classes();
-		require $this->crudHook->filepath;
-		$classname = array_values(array_diff(get_declared_classes(), $declared_classes_before));
-
-		if (count($classname) === 0) {
-			throw new \Exception(
-				sprintf(
-					'No class is defined in the request Execution file: %s',
-					$this->crudHook->filepath
-				),
-				500
-			);
-		}
-		if (count($classname) > 1) {
-			throw new \Exception(
-				sprintf(
-					'Only one class could be defined in the request Execution file: %s',
-					$this->crudHook->filepath
-				),
-				500
-			);
-		}
-
-		$this->crudHook->classname = $classname[0];
-
 		// Init CRUD Hook object
-		$this->crudHook->instance = new $this->crudHook->classname($file, $request, $response, $this->crudHook);
+		$hook->instance = new $hook->classname($file, $request, $response, $hook);
 
 		// Call request method in the CRUD Hook object
-		$this->crudHook->instance->{$this->request->method}($file, $request, $response, $this->crudHook);
+		$hook->instance->{$this->request->method}($file, $request, $response, $hook);
 
 		return TRUE;
 	}
@@ -198,11 +166,11 @@ class Yapi implements YapiInterface
 	 * https://swagger.io/docs/specification/describing-parameters/#path-parameters
 	 * https://swagger.io/docs/specification/describing-parameters/#query-parameters
 	 */
-	private static function matchPath(FileInterface $file, RequestInterface &$request)
+	private static function matchPath(FileInterface $file, RequestInterface $request)
 	{
 		// Convert and match $request with paths in $file
 		$path_match = FALSE;
-		foreach (self::convertPathRegexp($file) as $this_path => $this_regexp) {
+		foreach ($file->convertPathRegexp() as $this_path => $this_regexp) {
 			if (preg_match($this_regexp, $request->path, $matches)) {
 				$path_match = [
 					'path' => $this_path,
@@ -222,48 +190,6 @@ class Yapi implements YapiInterface
 		}
 		$request->match = $path_match;
 		return $path_match;
-	}
-
-	/**
-	 * Convert each paths in YAML into regex to match path in request
-	 * Reference: https://codeigniter.com/user_guide/incoming/routing.html#auto-routing-improved
-	 * 
-	 * Before: /employees
-	 * After: /^(?<_1>\/employees)\/?$/
-	 * 
-	 * Before: /employees/{id}
-	 * After: /^(?<_1>\/employees)\/(?<id>[^\/]+)\/?$/
-	 */
-	private static function convertPathRegexp(FileInterface $file)
-	{
-		$ret = [];
-		foreach (array_keys($file->getYamlArray()['paths']) as $this_path) {
-			// Convert parts not in curly brace
-			$not_in_curly = '/(^\/[^{}\/]+(?![^{]*})|[^{}\/]+(?![^{]*}))/';
-			$regexp = preg_replace_callback($not_in_curly, function ($match) {
-				static $count = 0;
-				$count++;
-				return "(?<_{$count}>{$match[0]})";
-			}, $this_path);
-			// xd($regexp);
-
-			// Convert slashes
-			$slash = '/(\/)/';
-			$regexp = preg_replace_callback($slash, function ($match) {
-				return "\/";
-			}, $regexp);
-			// xd($regexp);
-
-			// Convert curly brace parts
-			$curly_brace = '/{(.+)}/';
-			$regexp = preg_replace_callback($curly_brace, function ($match) {
-				return "(?<{$match[1]}>[^\/]+)";
-			}, $regexp);
-			// xd($regexp);
-
-			$ret[$this_path] = '/^' . $regexp . '\/?$/';
-		}
-		return $ret;
 	}
 
 	private static function checkOperation(FileInterface $file, RequestInterface $request)
@@ -407,61 +333,5 @@ class Yapi implements YapiInterface
 				}
 			}
 		}
-	}
-
-	private function findHookFile(RequestInterface $request): String
-	{
-		// Basepath for 'paths' directory
-		$filepath = getcwd() . $this->config['paths'];
-		if (!@file_exists($filepath)) {
-			throw new \Exception(
-				sprintf(
-					'Execution file directory not found: %s',
-					$filepath
-				),
-				500
-			);
-		}
-
-		/**
-		 * Find hook file path from specific to general
-		 * 
-		 * For example:
-		 * 
-		 * Request path: /employees/12
-		 * Match path: /employees/{id}
-		 * 
-		 * 1. /paths/employees/12.php::get()
-		 * 2. /paths/employees/id.php::get()
-		 * 3. /paths/employees/id/index.php::get()
-		 * 4. /paths/employees/index.php::id() (Todo: To be implemented)
-		 * 5. /paths/employees.php::id() (Todo: To be implemented)
-		 */
-
-		$found = FALSE;
-		$match_path = $request->match['path'];
-		$trial[] = $filepath . rtrim($request->path, "/") . '.php';
-		$trial[] = $filepath . str_replace(['{', '}'], '', $match_path) . '.php';
-		$trial[] = $filepath . str_replace(['{', '}'], '', $match_path) . '/index.php';
-
-		foreach ($trial as $this_trial) {
-			if (@file_exists($this_trial)) {
-				$filepath = $this_trial;
-				$found = TRUE;
-				break;
-			}
-		}
-
-		if (!$found) {
-			throw new \Exception(
-				sprintf(
-					'Execution file for request not found: %s',
-					$match_path
-				),
-				500
-			);
-		}
-
-		return $filepath;
 	}
 }

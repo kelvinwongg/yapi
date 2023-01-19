@@ -6,8 +6,7 @@ use Kelvinwongg\Yapi\Core\DatabaseInterface;
 use Kelvinwongg\Yapi\Core\RequestInterface;
 use Kelvinwongg\Yapi\Core\ResponseInterface;
 use Kelvinwongg\Yapi\Core\FileInterface;
-use Kelvinwongg\Yapi\Core\ParserInterface;
-use Kelvinwongg\Yapi\Core\Response;
+use Kelvinwongg\Yapi\Core\HookInterface;
 
 interface YapiInterface
 {
@@ -86,7 +85,7 @@ interface YapiInterface
 	 * @param  FileInterface $file The YAML file.
 	 * @return bool TRUE on success.
 	 */
-	public function execCrud(FileInterface $file, RequestInterface $request, ResponseInterface $response): bool;
+	public function execCrud(HookInterface $hook, FileInterface $file, RequestInterface $request, ResponseInterface $response): bool;
 
 	/**
 	 * handleResponse
