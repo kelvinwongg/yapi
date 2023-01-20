@@ -20,7 +20,7 @@ class Yapi implements YapiInterface
 	public Request $request;
 	public Response $response;
 	public File $file;
-	protected Hook $hook;
+	public Hook $hook;
 	protected array $config;
 
 	public function __construct(string|bool $pathORYamlStrORFile = false, array $config = [])
@@ -35,61 +35,63 @@ class Yapi implements YapiInterface
 			'paths' => '/paths',
 		), $config);
 
-		try {
-			/**
-			 * 1. Init Response
-			 */
-			$this->initResponse();
-			// xd($this->response);
+		if ($pathORYamlStrORFile) {
+			try {
+				/**
+				 * 1. Init Response
+				 */
+				$this->initResponse();
+				// xd($this->response);
+
+				/**
+				 * 2. Load the YAML
+				 */
+				if (!$pathORYamlStrORFile) throw new \Exception("File path is Missing", 500);
+				$this->loadYaml($pathORYamlStrORFile);
+				// xd($this->file);
+
+				/**
+				 * 3. Handle the request
+				 */
+				$this->loadRequest();
+				// xd($this->request);
+
+				/**
+				 * 4. Check request against YAML file
+				 */
+				$this->checkRequest($this->file, $this->request);
+				// xd($this->request);
+
+				/**
+				 * 5. Check and create database against YAML file
+				 */
+
+				/**
+				 * 6. Load the Hook
+				 */
+				$this->loadHook();
+
+				/**
+				 * 7. Before hook, CRUD operations, After hook
+				 */
+				$this->execBefore($this->request, $this->response, $this->file, $this->hook);
+				$this->execCrud($this->request, $this->response, $this->file, $this->hook);
+				$this->execAfter($this->request, $this->response, $this->file, $this->hook);
+				// xd($this->request);
+				// xd($this->response);
+				// xd($this->hook);
+				// xd($this->file);
+			} catch (\Exception $e) {
+				$this->response
+					->setContent($e->getMessage())
+					->setStatusCode($e->getCode());
+			}
 
 			/**
-			 * 2. Load the YAML
+			 * 8. Handle the response
 			 */
-			if (!$pathORYamlStrORFile) throw new \Exception("File path is Missing");
-			$this->loadYaml($pathORYamlStrORFile);
-			// xd($this->file);
-
-			/**
-			 * 3. Handle the request
-			 */
-			$this->loadRequest();
-			// xd($this->request);
-
-			/**
-			 * 4. Check request against YAML file
-			 */
-			$this->checkRequest($this->file, $this->request);
-			// xd($this->request);
-
-			/**
-			 * 5. Check and create database against YAML file
-			 */
-
-			/**
-			 * 6. Load the Hook
-			 */
-			$this->loadHook();
-
-			/**
-			 * 7. Before hook, CRUD operations, After hook
-			 */
-			$this->execBefore($this->request, $this->response, $this->file, $this->hook);
-			$this->execCrud($this->request, $this->response, $this->file, $this->hook);
-			$this->execAfter($this->request, $this->response, $this->file, $this->hook);
-			// xd($this->request);
-			// xd($this->response);
-			// xd($this->hook);
-			// xd($this->file);
-		} catch (\Exception $e) {
-			$this->response
-				->setContent($e->getMessage())
-				->setStatusCode($e->getCode());
+			$this->handleResponse($this->response);
 		}
-
-		/**
-		 * 8. Handle the response
-		 */
-		$this->handleResponse($this->response);
 	}
 
 	public function initResponse(ResponseInterface|bool $response = FALSE): ResponseInterface
