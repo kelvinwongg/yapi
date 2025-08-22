@@ -25,11 +25,6 @@ class Yapi implements YapiInterface
 
 	public function __construct(string|bool $pathORYamlStrORFile = false, array $config = [])
 	{
-		/**
-		 * Composer autoload for external packages and tools
-		 */
-		require_once __DIR__ . '/../vendor/autoload.php';
-
 		// Merge $config with default values
 		$this->config = array_merge(array(
 			'paths' => '/paths',
