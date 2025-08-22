@@ -1,12 +1,12 @@
 <?php
 
-namespace Kelvinwongg\Yapi;
+namespace Yapi;
 
-use Kelvinwongg\Yapi\Core\DatabaseInterface;
-use Kelvinwongg\Yapi\Core\RequestInterface;
-use Kelvinwongg\Yapi\Core\ResponseInterface;
-use Kelvinwongg\Yapi\Core\FileInterface;
-use Kelvinwongg\Yapi\Core\HookInterface;
+use Yapi\Core\DatabaseInterface;
+use Yapi\Core\RequestInterface;
+use Yapi\Core\ResponseInterface;
+use Yapi\Core\FileInterface;
+use Yapi\Core\HookInterface;
 
 interface YapiInterface
 {

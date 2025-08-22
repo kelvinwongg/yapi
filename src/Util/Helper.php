@@ -1,6 +1,6 @@
 <?php
 
-namespace Kelvinwongg\Yapi\Util;
+namespace Yapi\Util;
 
 if (!function_exists(__NAMESPACE__ . '\xd')) {
 	function xd(...$var)

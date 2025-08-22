@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kelvinwongg\Yapi;
+namespace Yapi;
 
 final class Email
 {

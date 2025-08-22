@@ -1,9 +1,9 @@
 <?php
 
-namespace Kelvinwongg\Yapi\Core;
+namespace Yapi\Core;
 
-use function Kelvinwongg\Yapi\Util\{xd};
-use Kelvinwongg\Yapi\Core\ResponseInterface;
+use function Yapi\Util\{xd};
+use Yapi\Core\ResponseInterface;
 
 class Response implements ResponseInterface
 {

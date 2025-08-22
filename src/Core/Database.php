@@ -1,8 +1,8 @@
 <?php
 
-namespace Kelvinwongg\Yapi\Core;
+namespace Yapi\Core;
 
-use Kelvinwongg\Yapi\Core\DatabaseInterface;
+use Yapi\Core\DatabaseInterface;
 
 class Database implements DatabaseInterface
 {

@@ -1,19 +1,19 @@
 <?php
 
-namespace Kelvinwongg\Yapi;
+namespace Yapi;
 
-use function Kelvinwongg\Yapi\Util\{xd};
-use Kelvinwongg\Yapi\YapiInterface;
-use Kelvinwongg\Yapi\Core\File;
-use Kelvinwongg\Yapi\Core\FileInterface;
-use Kelvinwongg\Yapi\Core\Request;
-use Kelvinwongg\Yapi\Core\RequestInterface;
-use Kelvinwongg\Yapi\Core\Response;
-use Kelvinwongg\Yapi\Core\ResponseInterface;
-use Kelvinwongg\Yapi\Core\Database;
-use Kelvinwongg\Yapi\Core\DatabaseInterface;
-use Kelvinwongg\Yapi\Core\Hook;
-use Kelvinwongg\Yapi\Core\HookInterface;
+use function Yapi\Util\{xd};
+use Yapi\YapiInterface;
+use Yapi\Core\File;
+use Yapi\Core\FileInterface;
+use Yapi\Core\Request;
+use Yapi\Core\RequestInterface;
+use Yapi\Core\Response;
+use Yapi\Core\ResponseInterface;
+use Yapi\Core\Database;
+use Yapi\Core\DatabaseInterface;
+use Yapi\Core\Hook;
+use Yapi\Core\HookInterface;
 
 class Yapi implements YapiInterface
 {

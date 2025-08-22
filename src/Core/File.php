@@ -1,8 +1,8 @@
 <?php
 
-namespace Kelvinwongg\Yapi\Core;
+namespace Yapi\Core;
 
-use function Kelvinwongg\Yapi\Util\{xd};
+use function Yapi\Util\{xd};
 
 class File implements FileInterface
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Kelvinwongg\Yapi\Core;
+namespace Yapi\Core;
 
-use function Kelvinwongg\Yapi\Util\{xd};
-use Kelvinwongg\Yapi\Core\HookInterface;
+use function Yapi\Util\{xd};
+use Yapi\Core\HookInterface;
 
 class Hook implements HookInterface
 {

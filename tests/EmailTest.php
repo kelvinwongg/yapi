@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use Kelvinwongg\Yapi\Email;
+use Yapi\Email;
 
 final class EmailTest extends TestCase
 {

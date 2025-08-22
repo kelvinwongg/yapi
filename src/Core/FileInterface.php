@@ -1,6 +1,6 @@
 <?php
 
-namespace Kelvinwongg\Yapi\Core;
+namespace Yapi\Core;
 
 /**
  * FileInterface
