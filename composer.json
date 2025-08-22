@@ -16,5 +16,8 @@
 			"name": "Kelvin Wong",
 			"email": "kelvinwongg@yahoo.com.hk"
 		}
-	]
+	],
+	"require": {
+		"monolog/monolog": "^2.10"
+	}
 }
