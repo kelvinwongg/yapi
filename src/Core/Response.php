@@ -140,7 +140,7 @@ class Response implements ResponseInterface
 	public function redirect($location): bool
 	{
 		try {
-			header("Location: ${location}");
+			header("Location: $location");
 		} catch (\Exception $e) {
 			return FALSE;
 		}
